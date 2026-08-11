@@ -503,6 +503,381 @@ function hasPublicPropData() {
 
 
 // ============================================================
+// INFORMATION / HELP TEXT
+// ============================================================
+
+const INFO_TEXT = {
+
+    outlook:
+        "Launch Lab’s overall weekly player rating. Higher scores indicate a stronger overall weekly outlook.",
+
+    matchup:
+        "How favorable the opposing defense is for this player’s position and expected usage. Higher is better.",
+
+    opportunity:
+        "How strong the player’s expected role and involvement are for the week — how much usable opportunity he is expected to receive.",
+
+    quality:
+        "The strength of the player’s underlying performance profile, helping separate pure volume from stronger underlying performance.",
+
+    playerEnvironment:
+        "How favorable the overall game conditions are for this specific player’s fantasy production.",
+
+    gameEnvironment:
+        "Launch Lab’s game-level view of how favorable this matchup is for fantasy scoring overall. Higher scores indicate stronger fantasy conditions.",
+
+    positionMatchup:
+        "The QB, RB, WR, and TE boxes show how favorable the opposing defense is for each position. These are ratings — not projected fantasy points or yardage."
+};
+
+
+function infoButtonHtml(
+    key,
+    label
+) {
+
+    return `
+        <button
+            type="button"
+            class="info-btn"
+            data-info-key="${key}"
+            aria-label="About ${label}"
+        >
+            i
+        </button>
+    `;
+}
+
+
+function closeInfoPopover() {
+
+    const popover =
+        $("#infoPopover");
+
+
+    if (
+        !popover
+    ) {
+
+        return;
+    }
+
+
+    popover.classList.remove(
+        "open"
+    );
+
+
+    popover.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+}
+
+
+function showInfoPopover(
+    button
+) {
+
+    const popover =
+        $("#infoPopover");
+
+
+    if (
+        !popover
+    ) {
+
+        return;
+    }
+
+
+    const key =
+        button.dataset.infoKey;
+
+
+    const text =
+        INFO_TEXT[key];
+
+
+    if (
+        !text
+    ) {
+
+        return;
+    }
+
+
+    popover.textContent =
+        text;
+
+
+    popover.classList.add(
+        "open"
+    );
+
+
+    popover.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    const rect =
+        button.getBoundingClientRect();
+
+
+    const popoverWidth =
+        Math.min(
+            300,
+            window.innerWidth - 28
+        );
+
+
+    const left =
+        Math.min(
+            Math.max(
+                14,
+                rect.left
+                +
+                rect.width / 2
+                -
+                popoverWidth / 2
+            ),
+            window.innerWidth
+            -
+            popoverWidth
+            -
+            14
+        );
+
+
+    popover.style.left =
+        `${left}px`;
+
+
+    popover.style.top =
+        `${Math.min(
+            window.innerHeight - 120,
+            rect.bottom + 8
+        )}px`;
+}
+
+
+function setupInfoButtons() {
+
+    $$(".info-btn")
+    .forEach(
+        button => {
+
+            button.onclick =
+                event => {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+
+                    const popover =
+                        $("#infoPopover");
+
+
+                    const sameButtonOpen =
+                        popover
+                        &&
+                        popover.classList.contains(
+                            "open"
+                        )
+                        &&
+                        popover.dataset.activeKey
+                        ===
+                        button.dataset.infoKey;
+
+
+                    if (
+                        sameButtonOpen
+                    ) {
+
+                        closeInfoPopover();
+
+                        popover.dataset.activeKey =
+                            "";
+
+                        return;
+                    }
+
+
+                    if (
+                        popover
+                    ) {
+
+                        popover.dataset.activeKey =
+                            button.dataset.infoKey;
+                    }
+
+
+                    showInfoPopover(
+                        button
+                    );
+                };
+        }
+    );
+}
+
+
+function setupGuideModal() {
+
+    const modal =
+        $("#launchLabGuideModal");
+
+    const openButton =
+        $("#openGuideBtn");
+
+    const closeButton =
+        $("#closeGuideBtn");
+
+
+    if (
+        !modal
+        ||
+        !openButton
+    ) {
+
+        return;
+    }
+
+
+    const openGuide =
+        () => {
+
+            closeInfoPopover();
+
+            modal.classList.add(
+                "open"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+            document.body.classList.add(
+                "guide-modal-open"
+            );
+
+
+            window.setTimeout(
+                () => {
+
+                    closeButton?.focus();
+                },
+                0
+            );
+        };
+
+
+    const closeGuide =
+        () => {
+
+            modal.classList.remove(
+                "open"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+            document.body.classList.remove(
+                "guide-modal-open"
+            );
+
+            openButton.focus();
+        };
+
+
+    openButton.onclick =
+        openGuide;
+
+
+    if (
+        closeButton
+    ) {
+
+        closeButton.onclick =
+            closeGuide;
+    }
+
+
+    $$('[data-guide-close]')
+    .forEach(
+        element => {
+
+            element.onclick =
+                closeGuide;
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key
+                ===
+                "Escape"
+            ) {
+
+                if (
+                    modal.classList.contains(
+                        "open"
+                    )
+                ) {
+
+                    closeGuide();
+                }
+
+
+                closeInfoPopover();
+            }
+        }
+    );
+
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            if (
+                !event.target.closest(
+                    ".info-btn"
+                )
+                &&
+                !event.target.closest(
+                    "#infoPopover"
+                )
+            ) {
+
+                closeInfoPopover();
+            }
+        }
+    );
+
+
+    window.addEventListener(
+        "resize",
+        closeInfoPopover
+    );
+
+
+    window.addEventListener(
+        "scroll",
+        closeInfoPopover,
+        true
+    );
+}
+
+
+// ============================================================
 // SCHEMA DETECTION
 // ============================================================
 
@@ -988,7 +1363,6 @@ function normalizeLegacyPlayer(raw) {
             null
     };
 }
-
 // ============================================================
 // BUILD GAMES FOR NEW FORMAT
 // ============================================================
@@ -1361,6 +1735,8 @@ async function init() {
 
 
         setupNav();
+
+        setupGuideModal();
 
     }
 
@@ -1742,8 +2118,6 @@ function renderQuick() {
         }
     }
 }
-
-
 // ============================================================
 // GAME BOARD
 // ============================================================
@@ -2095,8 +2469,15 @@ function renderGames() {
                             </div>
 
 
-                            <div class="player-sub">
+                            <div class="player-sub info-label">
+
                                 Game Environment
+
+                                ${infoButtonHtml(
+                                    "gameEnvironment",
+                                    "Game Environment"
+                                )}
+
                             </div>
 
                         </div>
@@ -2199,7 +2580,12 @@ function renderGames() {
                 };
         }
     );
+
+
+    setupInfoButtons();
 }
+
+
 // ============================================================
 // TEAM DISPLAY
 // ============================================================
@@ -2229,15 +2615,6 @@ function renderTeam(
 
     // ========================================================
     // SAFE TEAM ENVIRONMENT HANDLING
-    //
-    // IMPORTANT FOR LEGACY 2025:
-    //
-    // Number(null) becomes 0 in JavaScript.
-    //
-    // The old version therefore treated missing historical
-    // Game Environment values as real zero scores.
-    //
-    // numericOrNull() keeps missing values missing instead.
     // ========================================================
 
     const environmentValues =
@@ -2271,14 +2648,6 @@ function renderTeam(
             :
             null;
 
-
-    // --------------------------------------------------------
-    // Historical fallback grades
-    //
-    // If Week 18 has no numeric Game Environment score,
-    // preserve its stored historical grade instead of
-    // manufacturing a zero.
-    // --------------------------------------------------------
 
     const historicalEnvironmentGrades =
         teamPlayers
@@ -2581,8 +2950,15 @@ function renderTeam(
         </div>
 
 
-        <div class="player-sub">
+        <div class="player-sub info-label">
+
             How the matchup grades by position
+
+            ${infoButtonHtml(
+                "positionMatchup",
+                "Position Matchup Ratings"
+            )}
+
         </div>
 
 
@@ -2609,52 +2985,42 @@ function renderPlayer(player) {
         [
             "Outlook V2",
             player.outlook,
-            player.outlookGrade
+            player.outlookGrade,
+            "outlook"
         ],
 
         [
             "Matchup",
             player.matchup,
-            player.matchupGrade
+            player.matchupGrade,
+            "matchup"
         ],
 
         [
             "Opportunity",
             player.opportunity,
-            player.opportunityGrade
+            player.opportunityGrade,
+            "opportunity"
         ],
 
         [
             "Quality",
             player.quality,
-            player.qualityGrade
+            player.qualityGrade,
+            "quality"
         ],
 
         [
             "Game Env",
             player.gameEnvironment,
-            player.gameEnvironmentGrade
+            player.gameEnvironmentGrade,
+            "playerEnvironment"
         ]
 
     ]
 
     .map(
         metric => {
-
-            // =================================================
-            // SAFE HISTORICAL NUMERIC HANDLING
-            //
-            // OLD:
-            //
-            //     Number(null) → 0
-            //
-            // NEW:
-            //
-            //     numericOrNull(null) → null
-            //
-            // Therefore legacy Week 18 can fall back to its
-            // stored grade rather than falsely showing 0.
-            // =================================================
 
             const numeric =
                 numericOrNull(
@@ -2692,8 +3058,15 @@ function renderPlayer(player) {
 
             <div class="metric">
 
-                <span>
+                <span class="info-label">
+
                     ${metric[0]}
+
+                    ${infoButtonHtml(
+                        metric[3],
+                        metric[0]
+                    )}
+
                 </span>
 
                 <strong
@@ -2951,8 +3324,6 @@ function renderPlayer(player) {
     </div>
     `;
 }
-
-
 // ============================================================
 // NAVIGATION
 // ============================================================
@@ -3054,6 +3425,8 @@ function setupNav() {
         }
     );
 }
+
+
 // ============================================================
 // RANKINGS DEFINITIONS
 // ============================================================
@@ -3703,4 +4076,3 @@ function renderPerformance() {
 // ============================================================
 
 init();
-

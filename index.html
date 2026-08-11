@@ -1,7 +1,925 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071018"><title>Launch Lab NFL</title><link rel="stylesheet" href="styles.css"></head><body>
-<header class="topbar"><a class="brand" href="#"><img src="assets/launch-lab-logo.svg" alt="Launch Lab NFL"></a><nav><button data-tab="board" class="navbtn active">Weekly Board</button><button data-tab="rankings" class="navbtn">Rankings</button><button data-tab="performance" class="navbtn">Model Performance</button></nav></header>
-<main><section class="hero"><div><div class="eyebrow">NFL DECISION INTELLIGENCE</div><h1>Find the spots worth attacking.</h1><p>Player outlooks, matchup fingerprints, game environments and prop environments — organized for fast weekly decisions.</p></div><div class="weekbox"><label>Week</label><select id="weekSelect"></select><span id="dataStatus"></span></div></section>
-<section id="board" class="tabpage active"><div class="quick-grid"><div class="quick-card"><span>Best Game</span><strong id="bestGame">—</strong></div><div class="quick-card"><span>Top Player</span><strong id="topPlayer">—</strong></div><div class="quick-card"><span>Best Prop Environment</span><strong id="topProp">—</strong></div></div><div class="section-head"><div><span class="eyebrow">GAME FIRST</span><h2>Weekly Game Board</h2></div><div class="filters"><input id="search" placeholder="Search player or team"><select id="positionFilter"><option value="ALL">All positions</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option></select><select id="minScore"><option value="0">Any outlook</option><option value="60">60+</option><option value="70">70+</option><option value="80">80+</option><option value="90">90+</option></select></div></div><div id="games" class="games"></div></section>
-<section id="rankings" class="tabpage"><div class="section-head"><div><span class="eyebrow">PLAYER FIRST</span><h2>Weekly Rankings</h2></div></div><div class="ranking-tabs" id="rankingTabs"></div><div id="rankingsList" class="rank-list"></div></section>
-<section id="performance" class="tabpage"><div class="section-head"><div><span class="eyebrow">PHASE 8</span><h2>Model Performance</h2></div></div><div class="privacy-note">V2 is the primary public score. V1 remains visible here for model tracking. This page reports finished model performance only — no internal formulas are published.</div><div id="perfFantasy"></div><div id="perfProps"></div></section>
-</main><footer>Launch Lab NFL · Model scores describe matchup/prop environments, not guaranteed betting outcomes.</footer><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#071018">
+
+    <title>Launch Lab NFL</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+
+        <a class="brand" href="#">
+            <img
+                src="assets/launch-lab-logo.svg"
+                alt="Launch Lab NFL"
+            >
+        </a>
+
+
+        <nav>
+
+            <button
+                data-tab="board"
+                class="navbtn active"
+            >
+                Weekly Board
+            </button>
+
+            <button
+                data-tab="rankings"
+                class="navbtn"
+            >
+                Rankings
+            </button>
+
+            <button
+                data-tab="performance"
+                class="navbtn"
+            >
+                Model Performance
+            </button>
+
+        </nav>
+
+    </header>
+
+
+    <main>
+
+        <!-- ====================================================
+             HERO
+        ===================================================== -->
+
+        <section class="hero">
+
+            <div>
+
+                <div class="eyebrow">
+                    NFL DECISION INTELLIGENCE
+                </div>
+
+                <h1>
+                    Find the spots worth attacking.
+                </h1>
+
+                <p>
+                    Player outlooks, matchup fingerprints,
+                    game environments and prop environments —
+                    organized for fast weekly decisions.
+                </p>
+
+            </div>
+
+
+            <div class="weekbox">
+
+                <label>
+                    Week
+                </label>
+
+                <select id="weekSelect"></select>
+
+                <span id="dataStatus"></span>
+
+
+                <!-- ============================================
+                     NEW: HOW TO READ LAUNCH LAB BUTTON
+                ============================================= -->
+
+                <button
+                    id="openGuideBtn"
+                    class="guide-open-btn"
+                    type="button"
+                >
+                    ⓘ How to Read Launch Lab
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             WEEKLY BOARD
+        ===================================================== -->
+
+        <section
+            id="board"
+            class="tabpage active"
+        >
+
+            <div class="quick-grid">
+
+                <div class="quick-card">
+
+                    <span>
+                        Best Game
+                    </span>
+
+                    <strong id="bestGame">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="quick-card">
+
+                    <span>
+                        Top Player
+                    </span>
+
+                    <strong id="topPlayer">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="quick-card">
+
+                    <span>
+                        Best Prop Environment
+                    </span>
+
+                    <strong id="topProp">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="section-head">
+
+                <div>
+
+                    <span class="eyebrow">
+                        GAME FIRST
+                    </span>
+
+                    <h2>
+                        Weekly Game Board
+                    </h2>
+
+                </div>
+
+
+                <div class="filters">
+
+                    <input
+                        id="search"
+                        placeholder="Search player or team"
+                    >
+
+
+                    <select id="positionFilter">
+
+                        <option value="ALL">
+                            All positions
+                        </option>
+
+                        <option>
+                            QB
+                        </option>
+
+                        <option>
+                            RB
+                        </option>
+
+                        <option>
+                            WR
+                        </option>
+
+                        <option>
+                            TE
+                        </option>
+
+                    </select>
+
+
+                    <select id="minScore">
+
+                        <option value="0">
+                            Any outlook
+                        </option>
+
+                        <option value="60">
+                            60+
+                        </option>
+
+                        <option value="70">
+                            70+
+                        </option>
+
+                        <option value="80">
+                            80+
+                        </option>
+
+                        <option value="90">
+                            90+
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="games"
+                class="games"
+            ></div>
+
+        </section>
+
+
+        <!-- ====================================================
+             RANKINGS
+        ===================================================== -->
+
+        <section
+            id="rankings"
+            class="tabpage"
+        >
+
+            <div class="section-head">
+
+                <div>
+
+                    <span class="eyebrow">
+                        PLAYER FIRST
+                    </span>
+
+                    <h2>
+                        Weekly Rankings
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="ranking-tabs"
+                id="rankingTabs"
+            ></div>
+
+
+            <div
+                id="rankingsList"
+                class="rank-list"
+            ></div>
+
+        </section>
+
+
+        <!-- ====================================================
+             MODEL PERFORMANCE
+        ===================================================== -->
+
+        <section
+            id="performance"
+            class="tabpage"
+        >
+
+            <div class="section-head">
+
+                <div>
+
+                    <span class="eyebrow">
+                        PHASE 8
+                    </span>
+
+                    <h2>
+                        Model Performance
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="privacy-note">
+
+                V2 is the primary public score.
+                V1 remains visible here for model tracking.
+
+                This page reports finished model performance only —
+                no internal formulas are published.
+
+            </div>
+
+
+            <div id="perfFantasy"></div>
+
+            <div id="perfProps"></div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ========================================================
+         NEW: HOW TO READ LAUNCH LAB MODAL
+    ========================================================= -->
+
+    <div
+        id="launchLabGuideModal"
+        class="guide-modal"
+        aria-hidden="true"
+    >
+
+        <div
+            class="guide-modal-backdrop"
+            data-guide-close
+        ></div>
+
+
+        <div
+            class="guide-modal-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="guideModalTitle"
+        >
+
+            <div class="guide-modal-header">
+
+                <div>
+
+                    <div class="eyebrow">
+                        LAUNCH LAB KEY
+                    </div>
+
+                    <h2 id="guideModalTitle">
+                        How to Read Launch Lab
+                    </h2>
+
+                </div>
+
+
+                <button
+                    id="closeGuideBtn"
+                    class="guide-close-btn"
+                    type="button"
+                    aria-label="Close How to Read Launch Lab"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="guide-modal-body">
+
+
+                <!-- ============================================
+                     INTRO
+                ============================================= -->
+
+                <section class="guide-section">
+
+                    <p class="guide-intro">
+
+                        Launch Lab ratings use a 0–100 scale.
+
+                        Higher scores generally indicate a more
+                        favorable fantasy environment.
+
+                        These ratings are not projected fantasy
+                        points, projected yards, or guaranteed
+                        betting outcomes.
+
+                    </p>
+
+                </section>
+
+
+                <!-- ============================================
+                     PLAYER RATINGS
+                ============================================= -->
+
+                <section class="guide-section">
+
+                    <h3>
+                        Player Ratings
+                    </h3>
+
+
+                    <div class="guide-definition-list">
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Outlook V2
+                            </strong>
+
+                            <p>
+                                Launch Lab’s overall weekly player
+                                rating.
+
+                                It combines the model’s major matchup,
+                                opportunity, quality, and game-context
+                                signals into one 0–100 score.
+
+                                Higher means a stronger overall weekly
+                                outlook.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Matchup
+                            </strong>
+
+                            <p>
+                                How favorable the opposing defense is
+                                for the player’s position and expected
+                                usage.
+
+                                Higher scores indicate a more favorable
+                                defensive matchup.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Opportunity
+                            </strong>
+
+                            <p>
+                                How strong the player’s expected role
+                                and involvement are for the week.
+
+                                This measures how much usable
+                                opportunity the player is expected
+                                to receive.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Quality
+                            </strong>
+
+                            <p>
+                                The strength of the player’s underlying
+                                performance profile.
+
+                                It helps separate players who simply
+                                have volume from players whose
+                                performance and efficiency also support
+                                the outlook.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Player Game Environment
+                            </strong>
+
+                            <p>
+                                How favorable the overall game
+                                conditions are for this specific
+                                player’s fantasy production.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ============================================
+                     GAME + POSITION MATCHUP RATINGS
+                ============================================= -->
+
+                <section class="guide-section">
+
+                    <h3>
+                        Game and Position Ratings
+                    </h3>
+
+
+                    <div class="guide-definition-list">
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Overall Game Environment
+                            </strong>
+
+                            <p>
+                                Launch Lab’s game-level view of how
+                                favorable the matchup is for fantasy
+                                scoring overall.
+
+                                Higher scores indicate stronger
+                                overall fantasy conditions.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                How the Matchup Grades by Position
+                            </strong>
+
+                            <p>
+                                The QB, RB, WR, and TE boxes show how
+                                favorable the opposing defense is for
+                                each position.
+
+                                For example, a high RB score means the
+                                matchup is favorable for running backs.
+
+                                These numbers are ratings — not
+                                projected fantasy points or yardage.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ============================================
+                     COLOR / SCORE KEY
+                ============================================= -->
+
+                <section class="guide-section">
+
+                    <h3>
+                        Rating and Color Key
+                    </h3>
+
+
+                    <div class="guide-score-table-wrap">
+
+                        <table class="guide-score-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Score
+                                    </th>
+
+                                    <th>
+                                        Grade
+                                    </th>
+
+                                    <th>
+                                        Meaning
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <tr>
+
+                                    <td>
+                                        90–100
+                                    </td>
+
+                                    <td>
+                                        <span class="guide-grade g-elite">
+                                            ELITE
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Exceptional environment
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        80–89.9
+                                    </td>
+
+                                    <td>
+                                        <span class="guide-grade g-great">
+                                            GREAT
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Very favorable
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        70–79.9
+                                    </td>
+
+                                    <td>
+                                        <span class="guide-grade g-good">
+                                            GOOD
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Favorable
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        60–69.9
+                                    </td>
+
+                                    <td>
+                                        <span class="guide-grade g-above">
+                                            ABOVE AVG
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Better than average
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        40–59.9
+                                    </td>
+
+                                    <td>
+                                        <span class="guide-grade g-neutral">
+                                            NEUTRAL
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Roughly neutral
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        30–39.9
+                                    </td>
+
+                                    <td>
+                                        <span class="guide-grade g-difficult">
+                                            DIFFICULT
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Below average
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        20–29.9
+                                    </td>
+
+                                    <td>
+                                        <span class="guide-grade g-bad">
+                                            BAD
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Unfavorable
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        0–19.9
+                                    </td>
+
+                                    <td>
+                                        <span class="guide-grade g-avoid">
+                                            AVOID
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Extremely unfavorable
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ============================================
+                     RANKINGS GUIDE
+                ============================================= -->
+
+                <section class="guide-section">
+
+                    <h3>
+                        Rankings Page
+                    </h3>
+
+
+                    <div class="guide-definition-list">
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Top Player Outlooks
+                            </strong>
+
+                            <p>
+                                Players with the highest overall
+                                weekly Launch Lab ratings.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Best Matchups
+                            </strong>
+
+                            <p>
+                                Players with the strongest matchup
+                                ratings against their opposing defense.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Best Receiving Environments
+                            </strong>
+
+                            <p>
+                                Players in the strongest environments
+                                for receiving production.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Best Rushing Environments
+                            </strong>
+
+                            <p>
+                                Players in the strongest environments
+                                for rushing production.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Best TD Environments
+                            </strong>
+
+                            <p>
+                                Players in the strongest environments
+                                for touchdown opportunities.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Best Prop Environments
+                            </strong>
+
+                            <p>
+                                The highest-rated individual statistical
+                                environments across the available
+                                prop categories.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ============================================
+                     FOOTNOTE
+                ============================================= -->
+
+                <section class="guide-section guide-section-last">
+
+                    <div class="privacy-note">
+
+                        Launch Lab ratings describe matchup,
+                        opportunity and statistical environments.
+
+                        They are designed to help identify favorable
+                        weekly situations and should not be interpreted
+                        as guaranteed outcomes.
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         NEW: SMALL INFO POPOVER
+         
+         app.js will reuse this one element when users click
+         the small information icons beside rating labels.
+    ========================================================= -->
+
+    <div
+        id="infoPopover"
+        class="info-popover"
+        role="tooltip"
+        aria-hidden="true"
+    ></div>
+
+
+    <footer>
+
+        Launch Lab NFL · Model scores describe matchup/prop
+        environments, not guaranteed betting outcomes.
+
+    </footer>
+
+
+    <script src="app.js"></script>
+
+</body>
+</html>

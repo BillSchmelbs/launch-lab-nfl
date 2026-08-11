@@ -7,9 +7,18 @@
 //   2026+ sanitized public JSON
 //
 //   LEGACY FORMAT
-//   Original 2025 Week 18 website JSON
+//   Original 2025 historical/sample JSON
 //
-// The app detects the schema automatically.
+// Ranking philosophy:
+//
+//   Outlook      = overall weekly player score
+//   Matchup      = matchup score
+//   Receiving    = receiving environment score
+//   Rushing      = rushing environment score
+//   TD           = touchdown environment score
+//   Best Prop    = highest individual prop score
+//
+// Individual prop names appear ONLY in Best Prop Environments.
 // ============================================================
 
 
@@ -25,16 +34,12 @@ let DATA_MODE = null;
 
 
 const $ = selector =>
-    document.querySelector(
-        selector
-    );
+    document.querySelector(selector);
 
 
 const $$ = selector =>
     [
-        ...document.querySelectorAll(
-            selector
-        )
+        ...document.querySelectorAll(selector)
     ];
 
 
@@ -71,15 +76,11 @@ function round1(value) {
 
 
     const number =
-        Number(
-            value
-        );
+        Number(value);
 
 
     if (
-        Number.isNaN(
-            number
-        )
+        Number.isNaN(number)
     ) {
 
         return value;
@@ -99,15 +100,11 @@ function round1(value) {
 function grade(score) {
 
     const s =
-        Number(
-            score
-        );
+        Number(score);
 
 
     if (
-        Number.isNaN(
-            s
-        )
+        Number.isNaN(s)
     ) {
 
         return "N/A";
@@ -136,78 +133,41 @@ function grade(score) {
 function gclass(value = "") {
 
     const g =
-        String(
-            value
-        )
+        String(value)
         .toLowerCase();
 
 
-    if (
-        g.includes(
-            "elite"
-        )
-    ) {
-
+    if (g.includes("elite")) {
         return "g-elite";
     }
 
 
-    if (
-        g.includes(
-            "great"
-        )
-    ) {
-
+    if (g.includes("great")) {
         return "g-great";
     }
 
 
-    if (
-        g.includes(
-            "good"
-        )
-    ) {
-
+    if (g.includes("good")) {
         return "g-good";
     }
 
 
-    if (
-        g.includes(
-            "above"
-        )
-    ) {
-
+    if (g.includes("above")) {
         return "g-above";
     }
 
 
-    if (
-        g.includes(
-            "neutral"
-        )
-    ) {
-
+    if (g.includes("neutral")) {
         return "g-neutral";
     }
 
 
-    if (
-        g.includes(
-            "difficult"
-        )
-    ) {
-
+    if (g.includes("difficult")) {
         return "g-difficult";
     }
 
 
-    if (
-        g.includes(
-            "avoid"
-        )
-    ) {
-
+    if (g.includes("avoid")) {
         return "g-avoid";
     }
 
@@ -216,105 +176,97 @@ function gclass(value = "") {
 }
 
 
-function gradeRank(value = "") {
-
-    const g =
-        String(
-            value
-        )
-        .toLowerCase();
-
-
-    if (
-        g.includes(
-            "elite"
-        )
-    ) {
-
-        return 8;
-    }
-
-
-    if (
-        g.includes(
-            "great"
-        )
-    ) {
-
-        return 7;
-    }
-
-
-    if (
-        g.includes(
-            "good"
-        )
-    ) {
-
-        return 6;
-    }
-
-
-    if (
-        g.includes(
-            "above"
-        )
-    ) {
-
-        return 5;
-    }
-
-
-    if (
-        g.includes(
-            "neutral"
-        )
-    ) {
-
-        return 4;
-    }
-
-
-    if (
-        g.includes(
-            "difficult"
-        )
-    ) {
-
-        return 3;
-    }
-
-
-    if (
-        g.includes(
-            "bad"
-        )
-    ) {
-
-        return 2;
-    }
-
-
-    if (
-        g.includes(
-            "avoid"
-        )
-    ) {
-
-        return 1;
-    }
-
-
-    return 0;
-}
-
-
 function byId(id) {
 
     return (
-        PLAYER_MAP.get(
-            id
+        PLAYER_MAP.get(id)
+    );
+}
+
+
+// ============================================================
+// PROP HELPERS
+// ============================================================
+
+function propScore(
+    player,
+    propName
+) {
+
+    return Number(
+        player?.props?.[propName]?.score
+        ||
+        0
+    );
+}
+
+
+function receivingScore(player) {
+
+    return Math.max(
+
+        propScore(
+            player,
+            "Receiving Yards"
+        ),
+
+        propScore(
+            player,
+            "Receptions"
         )
+    );
+}
+
+
+function rushingScore(player) {
+
+    return propScore(
+        player,
+        "Rushing Yards"
+    );
+}
+
+
+function tdScore(player) {
+
+    return Math.max(
+
+        propScore(
+            player,
+            "TD"
+        ),
+
+        propScore(
+            player,
+            "Passing TD"
+        ),
+
+        propScore(
+            player,
+            "Receiving TD"
+        ),
+
+        propScore(
+            player,
+            "Rushing TD"
+        )
+    );
+}
+
+
+function hasPublicPropData() {
+
+    return PLAYERS.some(
+        player => {
+
+            return (
+                player.props
+                &&
+                Object.keys(
+                    player.props
+                ).length > 0
+            );
+        }
     );
 }
 
@@ -325,12 +277,7 @@ function byId(id) {
 
 function detectDataMode(data) {
 
-    // --------------------------------------------------------
-    // NEW 2026+ SANITIZED FORMAT
-    //
-    // meta + players where players use player_name,
-    // model_score_v2, matchup_rating, etc.
-    // --------------------------------------------------------
+    // NEW SANITIZED FORMAT
 
     if (
         Array.isArray(
@@ -350,17 +297,7 @@ function detectDataMode(data) {
     }
 
 
-    // --------------------------------------------------------
-    // LEGACY 2025 FORMAT
-    //
-    // players use fields like:
-    //
-    // name
-    // outlook
-    // matchup
-    //
-    // and often data.games exists.
-    // --------------------------------------------------------
+    // LEGACY FORMAT
 
     if (
         Array.isArray(
@@ -547,13 +484,33 @@ function normalizePublicPlayer(raw) {
         seasonContext:
             raw.season_context,
 
+        // ----------------------------------------------------
+        // FUTURE COMPATIBILITY
+        //
+        // These will remain empty for current Week 1 because
+        // sportsbook/prop outputs are not public yet.
+        //
+        // If future sanitized files include them, the website
+        // automatically gains the prop ranking tabs.
+        // ----------------------------------------------------
+
         props:
+            raw.props
+            ||
             {},
 
         bestProp:
+            raw.best_prop
+            ??
+            raw.bestProp
+            ??
             null,
 
         bestPropScore:
+            raw.best_prop_score
+            ??
+            raw.bestPropScore
+            ??
             null,
 
         why:
@@ -627,7 +584,7 @@ function normalizeLegacyPlayer(raw) {
             null,
 
         roleSource:
-            "LEGACY_2025_SAMPLE",
+            "LEGACY_SAMPLE",
 
         v1:
             raw.v1,
@@ -658,11 +615,9 @@ function normalizeLegacyPlayer(raw) {
             ),
 
         opportunity:
-            (
-                raw.opportunity
-                ??
-                null
-            ),
+            raw.opportunity
+            ??
+            null,
 
         opportunityGrade:
             raw.opportunityGrade
@@ -671,18 +626,18 @@ function normalizeLegacyPlayer(raw) {
                 raw.opportunity !== null
                 &&
                 raw.opportunity !== undefined
-                    ? grade(
+                    ?
+                    grade(
                         raw.opportunity
                     )
-                    : "N/A"
+                    :
+                    "N/A"
             ),
 
         quality:
-            (
-                raw.quality
-                ??
-                null
-            ),
+            raw.quality
+            ??
+            null,
 
         qualityGrade:
             raw.qualityGrade
@@ -691,20 +646,20 @@ function normalizeLegacyPlayer(raw) {
                 raw.quality !== null
                 &&
                 raw.quality !== undefined
-                    ? grade(
+                    ?
+                    grade(
                         raw.quality
                     )
-                    : "N/A"
+                    :
+                    "N/A"
             ),
 
         gameEnvironment:
-            (
-                raw.gameEnvironment
-                ??
-                raw.gameEnvironmentScore
-                ??
-                null
-            ),
+            raw.gameEnvironment
+            ??
+            raw.gameEnvironmentScore
+            ??
+            null,
 
         gameEnvironmentGrade:
             raw.gameEnvironmentGrade
@@ -713,10 +668,12 @@ function normalizeLegacyPlayer(raw) {
                 raw.gameEnvironment !== null
                 &&
                 raw.gameEnvironment !== undefined
-                    ? grade(
+                    ?
+                    grade(
                         raw.gameEnvironment
                     )
-                    : "N/A"
+                    :
+                    "N/A"
             ),
 
         positionRank:
@@ -736,7 +693,7 @@ function normalizeLegacyPlayer(raw) {
             "HISTORICAL_SAMPLE",
 
         confidenceBadge:
-            "2025 Sample",
+            "Historical Sample",
 
         modelReadiness:
             "HISTORICAL_SAMPLE",
@@ -779,14 +736,10 @@ function normalizeLegacyPlayer(raw) {
             "Launch Lab Rating",
 
         scoreExplanation:
-            (
-                "Historical Launch Lab sample rating."
-            ),
+            "Historical Launch Lab rating.",
 
         seasonContext:
-            (
-                "Historical 2025 Week 18 sample output."
-            ),
+            "Historical Launch Lab weekly output.",
 
         props:
             raw.props
@@ -844,8 +797,7 @@ function buildPublicGames(players) {
                 player.team,
                 player.opponent
 
-            ]
-            .sort();
+            ].sort();
 
 
             const gameKey =
@@ -950,7 +902,8 @@ function buildPublicGames(players) {
                         ?
                         (
                             game.environmentValues.reduce(
-                                (a, b) => a + b,
+                                (a, b) =>
+                                    a + b,
                                 0
                             )
                             /
@@ -1027,7 +980,7 @@ function buildPublicGames(players) {
 
 
 // ============================================================
-// BUILD GAMES FOR LEGACY FORMAT
+// BUILD LEGACY GAMES
 // ============================================================
 
 function buildLegacyGames(data) {
@@ -1040,57 +993,9 @@ function buildLegacyGames(data) {
         data.games.length
     ) {
 
-        return (
-            data.games.map(
-                game => {
-
-                    return {
-
-                        ...game,
-
-                        environmentScore:
-                            (
-                                game.environmentScore
-                                ??
-                                game.environment
-                                ??
-                                null
-                            ),
-
-                        environmentGrade:
-                            (
-                                game.environmentGrade
-                                ||
-                                grade(
-                                    game.environmentScore
-                                    ??
-                                    game.environment
-                                    ??
-                                    50
-                                )
-                            ),
-
-                        gameDate:
-                            (
-                                game.gameDate
-                                ||
-                                null
-                            ),
-
-                        gameTime:
-                            (
-                                game.gameTime
-                                ||
-                                null
-                            )
-                    };
-                }
-            )
-        );
+        return data.games;
     }
 
-
-    // fallback if legacy file has no DATA.games
 
     return (
         buildPublicGames(
@@ -1101,7 +1006,7 @@ function buildLegacyGames(data) {
 
 
 // ============================================================
-// INITIALIZE SITE
+// INITIALIZE
 // ============================================================
 
 async function init() {
@@ -1203,7 +1108,7 @@ async function init() {
         ) {
 
             throw new Error(
-                "No current week file found in index.json"
+                "No current week file found."
             );
         }
 
@@ -1230,9 +1135,7 @@ async function init() {
 
     }
 
-    catch (
-        error
-    ) {
+    catch (error) {
 
         console.error(
             error
@@ -1259,9 +1162,7 @@ async function init() {
 // LOAD WEEK
 // ============================================================
 
-async function loadWeek(
-    file
-) {
+async function loadWeek(file) {
 
     const response =
         await fetch(
@@ -1289,12 +1190,6 @@ async function loadWeek(
         );
 
 
-    console.log(
-        "Launch Lab data mode:",
-        DATA_MODE
-    );
-
-
     if (
         DATA_MODE
         ===
@@ -1307,6 +1202,7 @@ async function loadWeek(
                 ||
                 []
             )
+
             .map(
                 normalizePublicPlayer
             );
@@ -1331,6 +1227,7 @@ async function loadWeek(
                 ||
                 []
             )
+
             .map(
                 normalizeLegacyPlayer
             );
@@ -1428,9 +1325,7 @@ function updateDataStatus() {
                 )
                 :
                 (
-                    `${meta.season || 2026} `
-                    +
-                    `Week ${meta.week || 1}`
+                    `${meta.season} Week ${meta.week}`
                 );
 
 
@@ -1438,24 +1333,17 @@ function updateDataStatus() {
     }
 
 
-    if (
-        DATA_MODE
-        ===
-        "LEGACY_2025"
-    ) {
-
-        dataStatus.textContent =
-            (
-                DATA.meta?.label
-                ||
-                "2025 Week 18 Sample"
-            );
-    }
+    dataStatus.textContent =
+        (
+            DATA.meta?.label
+            ||
+            "Historical Week"
+        );
 }
 
 
 // ============================================================
-// QUICK CARDS
+// QUICK SUMMARY
 // ============================================================
 
 function renderQuick() {
@@ -1470,56 +1358,27 @@ function renderQuick() {
     const games =
         [
             ...GAMES
-        ]
-        .sort(
-            (a, b) => {
-
-                const aScore =
-                    (
-                        a.environmentScore
-                        ??
-                        0
-                    );
-
-
-                const bScore =
-                    (
-                        b.environmentScore
-                        ??
-                        0
-                    );
-
-
-                return (
-                    bScore
-                    -
-                    aScore
-                );
-            }
-        );
+        ];
 
 
     const topPlayers =
         [
             ...headlinePlayers
         ]
-        .sort(
-            (a, b) => {
 
-                return (
-                    Number(
-                        b.outlook
-                        ||
-                        0
-                    )
-                    -
-                    Number(
-                        a.outlook
-                        ||
-                        0
-                    )
-                );
-            }
+        .sort(
+            (a, b) =>
+                Number(
+                    b.outlook
+                    ||
+                    0
+                )
+                -
+                Number(
+                    a.outlook
+                    ||
+                    0
+                )
         );
 
 
@@ -1527,37 +1386,29 @@ function renderQuick() {
         headlinePlayers
 
         .filter(
-            player => {
-
-                return (
-                    player.bestPropScore
-                    !==
-                    null
-                    &&
-                    player.bestPropScore
-                    !==
-                    undefined
-                );
-            }
+            player =>
+                player.bestPropScore
+                !==
+                null
+                &&
+                player.bestPropScore
+                !==
+                undefined
         )
 
         .sort(
-            (a, b) => {
-
-                return (
-                    Number(
-                        b.bestPropScore
-                        ||
-                        0
-                    )
-                    -
-                    Number(
-                        a.bestPropScore
-                        ||
-                        0
-                    )
-                );
-            }
+            (a, b) =>
+                Number(
+                    b.bestPropScore
+                    ||
+                    0
+                )
+                -
+                Number(
+                    a.bestPropScore
+                    ||
+                    0
+                )
         );
 
 
@@ -1565,17 +1416,48 @@ function renderQuick() {
         $("#bestGame")
     ) {
 
+        let game =
+            games[0];
+
+
+        if (
+            DATA_MODE
+            ===
+            "LEGACY_2025"
+        ) {
+
+            games.sort(
+                (a, b) =>
+                    (
+                        Number(
+                            b.total
+                            ||
+                            0
+                        )
+                        -
+                        Number(
+                            a.total
+                            ||
+                            0
+                        )
+                    )
+            );
+
+
+            game =
+                games[0];
+        }
+
+
         $("#bestGame").textContent =
-            games[0]
+            game
                 ?
                 (
-                    `${games[0].matchupLabel} · `
+                    `${game.matchupLabel} · `
                     +
-                    `${
-                        fmt(
-                            games[0].environmentGrade
-                        )
-                    }`
+                    `${fmt(
+                        game.environmentGrade
+                    )}`
                 )
                 :
                 "—";
@@ -1606,10 +1488,6 @@ function renderQuick() {
     ) {
 
         if (
-            DATA_MODE
-            ===
-            "LEGACY_2025"
-            &&
             props[0]
         ) {
 
@@ -1675,20 +1553,12 @@ function renderGames() {
     GAMES.forEach(
         game => {
 
-            let gamePlayerIds =
+            let gamePlayers =
                 (
                     game.players
                     ||
                     []
-                );
-
-
-            // ------------------------------------------------
-            // Legacy files may have game.players already
-            // ------------------------------------------------
-
-            const gamePlayers =
-                gamePlayerIds
+                )
 
                 .map(
                     item => {
@@ -1730,23 +1600,18 @@ function renderGames() {
                 "LEGACY_2025"
             ) {
 
-                // fallback by team/opponent matching
-
-                const labels =
+                const parts =
                     (
                         game.matchupLabel
                         ||
                         ""
-                    );
-
-
-                const parts =
-                    labels.split(
-                        "@"
                     )
+
+                    .split("@")
+
                     .map(
-                        x =>
-                            x.trim()
+                        item =>
+                            item.trim()
                     );
 
 
@@ -1930,6 +1795,7 @@ function renderGames() {
                                     }
                                 "
                             >
+
                                 ${
                                     DATA_MODE
                                     ===
@@ -1943,7 +1809,9 @@ function renderGames() {
                                             environmentGrade
                                         )
                                 }
+
                             </div>
+
 
                             <div class="player-sub">
                                 Game Environment
@@ -1962,6 +1830,7 @@ function renderGames() {
 
                         ${
                             teams
+
                             .map(
                                 team =>
                                     renderTeam(
@@ -1972,6 +1841,7 @@ function renderGames() {
                                         search
                                     )
                             )
+
                             .join("")
                         }
 
@@ -2072,11 +1942,9 @@ function renderTeam(
 
 
     const opponent =
-        (
-            teamPlayers[0]?.opponent
-            ||
-            ""
-        );
+        teamPlayers[0]?.opponent
+        ||
+        "";
 
 
     const environmentValues =
@@ -2127,17 +1995,15 @@ function renderTeam(
         .map(
             pos => {
 
-                const players =
-                    teamPlayers.filter(
+                const matchupValues =
+                    teamPlayers
+
+                    .filter(
                         player =>
                             player.position
                             ===
                             pos
-                    );
-
-
-                const matchupValues =
-                    players
+                    )
 
                     .map(
                         player =>
@@ -2214,18 +2080,14 @@ function renderTeam(
         ]
 
         .filter(
-            pos => {
-
-                return (
-                    positionFilter
-                    ===
-                    "ALL"
-                    ||
-                    pos
-                    ===
-                    positionFilter
-                );
-            }
+            pos =>
+                positionFilter
+                ===
+                "ALL"
+                ||
+                pos
+                ===
+                positionFilter
         )
 
         .map(
@@ -2242,15 +2104,13 @@ function renderTeam(
                                 ===
                                 pos
                                 &&
-                                (
-                                    Number(
-                                        player.outlook
-                                        ||
-                                        0
-                                    )
-                                    >=
-                                    minScore
+                                Number(
+                                    player.outlook
+                                    ||
+                                    0
                                 )
+                                >=
+                                minScore
                                 &&
                                 (
                                     !search
@@ -2278,38 +2138,18 @@ function renderTeam(
                     )
 
                     .sort(
-                        (a, b) => {
-
-                            if (
-                                a.headlineEligible
-                                !==
-                                b.headlineEligible
-                            ) {
-
-                                return (
-                                    a.headlineEligible
-                                        ?
-                                        -1
-                                        :
-                                        1
-                                );
-                            }
-
-
-                            return (
-                                Number(
-                                    b.outlook
-                                    ||
-                                    0
-                                )
-                                -
-                                Number(
-                                    a.outlook
-                                    ||
-                                    0
-                                )
-                            );
-                        }
+                        (a, b) =>
+                            Number(
+                                b.outlook
+                                ||
+                                0
+                            )
+                            -
+                            Number(
+                                a.outlook
+                                ||
+                                0
+                            )
                     );
 
 
@@ -2324,9 +2164,7 @@ function renderTeam(
                 return `
 
                 <button class="posbtn">
-
                     ${pos} · ${players.length} players
-
                 </button>
 
 
@@ -2423,9 +2261,7 @@ function renderTeam(
 // PLAYER DISPLAY
 // ============================================================
 
-function renderPlayer(
-    player
-) {
+function renderPlayer(player) {
 
     const metrics = [
 
@@ -2460,6 +2296,7 @@ function renderPlayer(
         ]
 
     ]
+
     .map(
         metric => {
 
@@ -2475,35 +2312,26 @@ function renderPlayer(
                 );
 
 
-            let displayValue;
-
-
-            if (
+            const displayValue =
                 hasNumeric
-            ) {
-
-                displayValue =
-                    DATA_MODE
-                    ===
-                    "PUBLIC_V2"
-                        ?
-                        `${round1(
-                            numeric
-                        )}/100`
-                        :
-                        round1(
-                            numeric
-                        );
-            }
-
-
-            else {
-
-                displayValue =
+                    ?
+                    (
+                        DATA_MODE
+                        ===
+                        "PUBLIC_V2"
+                            ?
+                            `${round1(
+                                numeric
+                            )}/100`
+                            :
+                            round1(
+                                numeric
+                            )
+                    )
+                    :
                     fmt(
                         metric[2]
                     );
-            }
 
 
             return `
@@ -2539,16 +2367,16 @@ function renderPlayer(
 
 
     if (
-        DATA_MODE
-        ===
-        "LEGACY_2025"
+        player.props
+        &&
+        Object.keys(
+            player.props
+        ).length
     ) {
 
         propsHtml =
             Object.entries(
                 player.props
-                ||
-                {}
             )
 
             .map(
@@ -2584,79 +2412,10 @@ function renderPlayer(
     }
 
 
-    const actual =
-        (
-            player.actualPpr
-            !==
-            null
-            &&
-            player.actualPpr
-            !==
-            ""
-        )
-            ?
-            `
-            <div class="pill">
-                Actual PPR ${
-                    player.actualPpr
-                }
-            </div>
-            `
-            :
-            "";
-
-
-    const headlineBadge =
-        player.headlineEligible
-            ?
-            `
-            <span class="pill">
-                Headline Role
-            </span>
-            `
-            :
-            `
-            <span class="pill">
-                Extended Player
-            </span>
-            `;
-
-
     const confidence =
-        (
-            player.confidenceBadge
-            ||
-            (
-                DATA_MODE
-                ===
-                "LEGACY_2025"
-                    ?
-                    "2025 Sample"
-                    :
-                    "Early Season"
-            )
-        );
-
-
-    const legacyWhy =
-        (
-            DATA_MODE
-            ===
-            "LEGACY_2025"
-        )
-            ?
-            (
-                player.why
-                ||
-                []
-            )
-            .map(
-                item =>
-                    `<div>• ${item}</div>`
-            )
-            .join("")
-            :
-            "";
+        player.confidenceBadge
+        ||
+        "Early Season";
 
 
     return `
@@ -2699,8 +2458,6 @@ function renderPlayer(
                     "
                 >
 
-                    ${headlineBadge}
-
                     <span class="pill">
                         ${confidence}
                     </span>
@@ -2722,7 +2479,6 @@ function renderPlayer(
                         }
                     "
                 >
-
                     ${
                         DATA_MODE
                         ===
@@ -2736,22 +2492,11 @@ function renderPlayer(
                                 player.outlook
                             )
                     }
-
                 </div>
 
 
                 <div class="player-sub">
-
-                    ${
-                        DATA_MODE
-                        ===
-                        "PUBLIC_V2"
-                            ?
-                            "Launch Lab Rating"
-                            :
-                            "Player Outlook"
-                    }
-
+                    Player Outlook
                 </div>
 
             </div>
@@ -2772,8 +2517,9 @@ function renderPlayer(
                         margin-bottom:8px;
                     "
                 >
-                    Ratings use a 0–100 scale.
-                    They are not projected yards or fantasy points.
+                    Overall weekly Launch Lab rating.
+                    Ratings use a 0–100 scale and are not
+                    projected yards or fantasy points.
                 </div>
                 `
                 :
@@ -2782,9 +2528,7 @@ function renderPlayer(
 
 
         <div class="metric-grid">
-
             ${metrics}
-
         </div>
 
 
@@ -2802,108 +2546,50 @@ function renderPlayer(
 
 
         <button class="detail-btn">
-
-            ${
-                DATA_MODE
-                ===
-                "LEGACY_2025"
-                    ?
-                    "Why this score / Advanced model ▾"
-                    :
-                    "Rating details / Advanced view ▾"
-            }
-
+            Rating details / Advanced view ▾
         </button>
 
 
         <div class="details">
 
-            ${legacyWhy}
+            <div>
+                Player Outlook:
+                <strong>
+                    ${fmt(
+                        player.outlook
+                    )}
+                </strong>
+            </div>
 
 
-            <div
-                style="
-                    margin-top:6px;
-                "
-            >
+            <div>
                 V1 Launch Score:
                 <strong>
                     ${fmt(
                         player.v1
                     )}
                 </strong>
-
-                ${actual}
             </div>
 
 
             ${
-                DATA_MODE
-                ===
-                "LEGACY_2025"
-                    ?
-                    `
-                    <div>
-                        Best prop environment:
-                        <strong>
-                            ${fmt(
-                                player.bestProp
-                            )}
-                            ${fmt(
-                                player.bestPropScore
-                            )}
-                        </strong>
-                    </div>
-                    `
-                    :
-                    `
-                    <div>
-                        Position Rank:
-                        <strong>
-                            ${fmt(
-                                player.positionRank
-                            )}
-                        </strong>
-                    </div>
-
-                    <div>
-                        Role:
-                        <strong>
-                            ${fmt(
-                                player.role
-                            )}
-                        </strong>
-                    </div>
-
-                    <div>
-                        Role Status:
-                        <strong>
-                            ${fmt(
-                                player.roleStatus
-                            )}
-                        </strong>
-                    </div>
-
-                    <div>
-                        Model Confidence:
-                        <strong>
-                            ${fmt(
-                                confidence
-                            )}
-                        </strong>
-                    </div>
-
-                    <div
-                        style="
-                            margin-top:8px;
-                            opacity:.8;
-                        "
-                    >
-                        Early-season ratings use prior-season
-                        evidence plus current 2026 roster,
-                        team and matchup context.
-                    </div>
-                    `
+                player.bestProp
+                ?
+                `
+                <div>
+                    Best Prop Environment:
+                    <strong>
+                        ${fmt(
+                            player.bestProp
+                        )}
+                        ${fmt(
+                            player.bestPropScore
+                        )}
+                    </strong>
+                </div>
+                `
+                :
+                ""
             }
 
         </div>
@@ -2979,6 +2665,7 @@ function setupNav() {
         "positionFilter",
         "minScore"
     ]
+
     .forEach(
         id => {
 
@@ -2998,8 +2685,7 @@ function setupNav() {
             }
 
 
-            element
-            .addEventListener(
+            element.addEventListener(
 
                 id
                 ===
@@ -3017,114 +2703,221 @@ function setupNav() {
 
 
 // ============================================================
-// RANKINGS
+// RANKINGS DEFINITIONS
 // ============================================================
 
-const rankDefsPublic = {
+function buildRankDefinitions() {
 
-    outlook: [
-        "Top Player Outlooks",
-        player =>
-            player.outlook
-    ],
+    const definitions = {
 
-    matchup: [
-        "Best Matchups",
-        player =>
-            player.matchup
-    ],
+        outlook: {
 
-    opportunity: [
-        "Best Opportunity Ratings",
-        player =>
-            player.opportunity
-    ],
+            title:
+                "Top Player Outlooks",
 
-    quality: [
-        "Best Quality Ratings",
-        player =>
-            player.quality
-    ],
+            score:
+                player =>
+                    Number(
+                        player.outlook
+                        ||
+                        0
+                    ),
 
-    environment: [
-        "Best Game Environments",
-        player =>
-            player.gameEnvironment
-    ]
-};
+            scoreLabel:
+                () =>
+                    "Outlook Score"
+        },
 
 
-const rankDefsLegacy = {
+        matchup: {
 
-    outlook: [
-        "Top Player Outlooks",
-        player =>
-            player.outlook
-    ],
+            title:
+                "Best Matchups",
 
-    matchup: [
-        "Best Matchups",
-        player =>
-            player.matchup
-    ],
+            score:
+                player =>
+                    Number(
+                        player.matchup
+                        ||
+                        0
+                    ),
 
-    receiving: [
-        "Best Receiving Environments",
-        player =>
-            Math.max(
-                player.props?.[
-                    "Receiving Yards"
-                ]?.score
-                ||
-                0,
-
-                player.props?.Receptions?.score
-                ||
-                0
-            )
-    ],
-
-    rushing: [
-        "Best Rushing Environments",
-        player =>
-            (
-                player.props?.[
-                    "Rushing Yards"
-                ]?.score
-                ||
-                0
-            )
-    ],
-
-    td: [
-        "Best TD Environments",
-        player =>
-            (
-                player.props?.TD?.score
-                ||
-                player.props?.[
-                    "Passing TD"
-                ]?.score
-                ||
-                0
-            )
-    ],
-
-    prop: [
-        "Best Prop Environments",
-        player =>
-            (
-                player.bestPropScore
-                ||
-                0
-            )
-    ]
-};
+            scoreLabel:
+                () =>
+                    "Matchup Score"
+        }
+    };
 
 
-function renderRankings(
-    key
-) {
+    // --------------------------------------------------------
+    // PROP-ENVIRONMENT TABS
+    //
+    // Only appear when the selected week's public file
+    // actually contains prop-environment scores.
+    //
+    // Week 18 has them.
+    // Current 2026 Week 1 does not yet.
+    //
+    // Future weeks automatically gain them once sanitized
+    // public prop outputs are included.
+    // --------------------------------------------------------
+
+    if (
+        hasPublicPropData()
+    ) {
+
+        definitions.receiving = {
+
+            title:
+                "Best Receiving Environments",
+
+            score:
+                player =>
+                    receivingScore(
+                        player
+                    ),
+
+            scoreLabel:
+                () =>
+                    "Receiving Score"
+        };
+
+
+        definitions.rushing = {
+
+            title:
+                "Best Rushing Environments",
+
+            score:
+                player =>
+                    rushingScore(
+                        player
+                    ),
+
+            scoreLabel:
+                () =>
+                    "Rushing Score"
+        };
+
+
+        definitions.td = {
+
+            title:
+                "Best TD Environments",
+
+            score:
+                player =>
+                    tdScore(
+                        player
+                    ),
+
+            scoreLabel:
+                () =>
+                    "TD Score"
+        };
+
+
+        definitions.prop = {
+
+            title:
+                "Best Prop Environments",
+
+            score:
+                player =>
+                    Number(
+                        player.bestPropScore
+                        ||
+                        0
+                    ),
+
+            // THIS IS THE ONLY RANKING TAB THAT SHOWS
+            // THE ACTUAL INDIVIDUAL PROP NAME.
+
+            scoreLabel:
+                player =>
+                    player.bestProp
+                    ||
+                    "Best Prop"
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // NEW PUBLIC DATA WITHOUT PROP OUTPUTS
+    //
+    // Gives useful component rankings until betting/prop
+    // scores are integrated.
+    // --------------------------------------------------------
+
+    else {
+
+        definitions.opportunity = {
+
+            title:
+                "Best Opportunity Ratings",
+
+            score:
+                player =>
+                    Number(
+                        player.opportunity
+                        ||
+                        0
+                    ),
+
+            scoreLabel:
+                () =>
+                    "Opportunity Score"
+        };
+
+
+        definitions.quality = {
+
+            title:
+                "Best Quality Ratings",
+
+            score:
+                player =>
+                    Number(
+                        player.quality
+                        ||
+                        0
+                    ),
+
+            scoreLabel:
+                () =>
+                    "Quality Score"
+        };
+
+
+        definitions.environment = {
+
+            title:
+                "Best Game Environments",
+
+            score:
+                player =>
+                    Number(
+                        player.gameEnvironment
+                        ||
+                        0
+                    ),
+
+            scoreLabel:
+                () =>
+                    "Game Env Score"
+        };
+    }
+
+
+    return definitions;
+}
+
+
+// ============================================================
+// RANKINGS DISPLAY
+// ============================================================
+
+function renderRankings(key) {
 
     const tabs =
         $("#rankingTabs");
@@ -3139,19 +2932,11 @@ function renderRankings(
 
 
     const rankDefs =
-        DATA_MODE
-        ===
-        "LEGACY_2025"
-            ?
-            rankDefsLegacy
-            :
-            rankDefsPublic;
+        buildRankDefinitions();
 
 
     if (
-        !rankDefs[
-            key
-        ]
+        !rankDefs[key]
     ) {
 
         key =
@@ -3165,7 +2950,7 @@ function renderRankings(
         )
 
         .map(
-            ([rankKey, value]) => `
+            ([rankKey, definition]) => `
 
                 <button
                     data-rank="${rankKey}"
@@ -3179,7 +2964,7 @@ function renderRankings(
                             ""
                     }"
                 >
-                    ${value[0]}
+                    ${definition.title}
                 </button>
             `
         )
@@ -3191,6 +2976,7 @@ function renderRankings(
     .querySelectorAll(
         "button"
     )
+
     .forEach(
         button => {
 
@@ -3205,10 +2991,8 @@ function renderRankings(
     );
 
 
-    const rankFunction =
-        rankDefs[
-            key
-        ][1];
+    const definition =
+        rankDefs[key];
 
 
     const rows =
@@ -3231,7 +3015,7 @@ function renderRankings(
                 player,
 
                 Number(
-                    rankFunction(
+                    definition.score(
                         player
                     )
                 )
@@ -3270,7 +3054,15 @@ function renderRankings(
                     score
                 ],
                 index
-            ) => `
+            ) => {
+
+                const scoreLabel =
+                    definition.scoreLabel(
+                        player
+                    );
+
+
+                return `
 
                 <div class="rank-row">
 
@@ -3309,43 +3101,15 @@ function renderRankings(
                             }
                         "
                     >
-
-                        ${
-                            DATA_MODE
-                            ===
-                            "PUBLIC_V2"
-                                ?
-                                `${round1(
-                                    score
-                                )}/100`
-                                :
-                                round1(
-                                    score
-                                )
-                        }
-
+                        ${round1(
+                            score
+                        )}
                     </div>
 
 
                     <div class="hide-mobile">
 
-                        ${
-                            DATA_MODE
-                            ===
-                            "LEGACY_2025"
-                                ?
-                                (
-                                    player.bestProp
-                                    ||
-                                    ""
-                                )
-                                :
-                                (
-                                    player.confidenceBadge
-                                    ||
-                                    ""
-                                )
-                        }
+                        ${scoreLabel}
 
                     </div>
 
@@ -3358,16 +3122,15 @@ function renderRankings(
                     >
 
                         Outlook
-                        ${
-                            fmt(
-                                player.outlook
-                            )
-                        }
+                        ${round1(
+                            player.outlook
+                        )}
 
                     </div>
 
                 </div>
-            `
+                `;
+            }
         )
 
         .join("");
@@ -3408,12 +3171,7 @@ function perfTable(
         ${title}
     </h3>
 
-
-    <div
-        style="
-            overflow:auto;
-        "
-    >
+    <div style="overflow:auto">
 
         <table class="perf-table">
 
@@ -3461,9 +3219,7 @@ function perfTable(
                                             <td>
                                                 ${
                                                     fmt(
-                                                        row[
-                                                            key
-                                                        ]
+                                                        row[key]
                                                     )
                                                 }
                                             </td>
@@ -3514,11 +3270,13 @@ function renderPerformance() {
 
                     DATA.performance?.fantasy
                 )
+
                 ||
+
                 `
                 <div class="privacy-note">
                     No fantasy performance table available
-                    in this historical file.
+                    for this historical week.
                 </div>
                 `;
         }
@@ -3535,11 +3293,13 @@ function renderPerformance() {
 
                     DATA.performance?.props
                 )
+
                 ||
+
                 `
                 <div class="privacy-note">
                     No prop performance table available
-                    in this historical file.
+                    for this historical week.
                 </div>
                 `;
         }
@@ -3566,12 +3326,6 @@ function renderPerformance() {
                 Pregame predictions will be frozen before
                 kickoff and compared with actual results
                 after games are completed.
-
-                <br><br>
-
-                Historical and live V1 vs V2 performance
-                reporting will appear here as the season
-                progresses.
 
             </div>
             `;
@@ -3608,7 +3362,7 @@ function renderPerformance() {
 
 
 // ============================================================
-// START
+// START APPLICATION
 // ============================================================
 
 init();

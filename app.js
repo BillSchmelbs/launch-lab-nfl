@@ -97,6 +97,237 @@ function round1(value) {
 }
 
 
+// ============================================================
+// SAFE NUMERIC HELPER
+//
+// IMPORTANT:
+// Number(null) normally becomes 0 in JavaScript.
+//
+// That was causing missing historical Week 18 ratings to
+// incorrectly display as zero.
+//
+// This helper preserves truly missing values as null.
+// ============================================================
+
+function numericOrNull(value) {
+
+    if (
+        value === null
+        ||
+        value === undefined
+        ||
+        value === ""
+    ) {
+
+        return null;
+    }
+
+
+    const number =
+        Number(
+            value
+        );
+
+
+    if (
+        !Number.isFinite(
+            number
+        )
+    ) {
+
+        return null;
+    }
+
+
+    return number;
+}
+
+
+// ============================================================
+// TEAM IMPLIED TOTAL HELPER
+//
+// LEGACY 2025:
+// Uses the implied total already stored in the historical
+// game object when available.
+//
+// 2026+:
+// Calculates team implied total from:
+//   • game total
+//   • spread
+//   • home / away designation
+//
+// No JSON or Colab change is required.
+// ============================================================
+
+function getTeamImpliedTotal(
+    game,
+    team,
+    gamePlayers
+) {
+
+    // --------------------------------------------------------
+    // LEGACY FORMAT
+    //
+    // Prefer the historical implied total already stored
+    // inside the Week 18 game object.
+    // --------------------------------------------------------
+
+    if (
+        DATA_MODE
+        ===
+        "LEGACY_2025"
+    ) {
+
+        const legacyTeams =
+            Object.values(
+                game?.teams
+                ||
+                {}
+            );
+
+
+        const legacyTeam =
+            legacyTeams.find(
+                item =>
+                    item?.team
+                    ===
+                    team
+            );
+
+
+        const legacyImplied =
+            numericOrNull(
+                legacyTeam?.impliedPoints
+            );
+
+
+        if (
+            legacyImplied
+            !==
+            null
+        ) {
+
+            return round1(
+                legacyImplied
+            );
+        }
+    }
+
+
+    // --------------------------------------------------------
+    // NEW FORMAT
+    //
+    // spread_line is treated as the HOME-team spread.
+    //
+    // home implied = (total - home spread) / 2
+    // away implied = (total + home spread) / 2
+    //
+    // Example:
+    //
+    // Total = 48.5
+    // Home spread = -2.5
+    //
+    // Home implied = 25.5
+    // Away implied = 23.0
+    // --------------------------------------------------------
+
+    const representative =
+        gamePlayers.find(
+            player =>
+                player.team
+                ===
+                team
+        );
+
+
+    if (
+        !representative
+    ) {
+
+        return null;
+    }
+
+
+    const total =
+        numericOrNull(
+            representative.gameTotal
+            ??
+            game?.total
+        );
+
+
+    const spread =
+        numericOrNull(
+            representative.spread
+        );
+
+
+    if (
+        total === null
+        ||
+        spread === null
+    ) {
+
+        return null;
+    }
+
+
+    let implied =
+        null;
+
+
+    if (
+        representative.homeAway
+        ===
+        "HOME"
+    ) {
+
+        implied =
+            (
+                total
+                -
+                spread
+            )
+            /
+            2;
+    }
+
+
+    else if (
+        representative.homeAway
+        ===
+        "AWAY"
+    ) {
+
+        implied =
+            (
+                total
+                +
+                spread
+            )
+            /
+            2;
+    }
+
+
+    if (
+        implied === null
+        ||
+        !Number.isFinite(
+            implied
+        )
+    ) {
+
+        return null;
+    }
+
+
+    return round1(
+        implied
+    );
+}
+
+
 function grade(score) {
 
     const s =
@@ -484,16 +715,6 @@ function normalizePublicPlayer(raw) {
         seasonContext:
             raw.season_context,
 
-        // ----------------------------------------------------
-        // FUTURE COMPATIBILITY
-        //
-        // These will remain empty for current Week 1 because
-        // sportsbook/prop outputs are not public yet.
-        //
-        // If future sanitized files include them, the website
-        // automatically gains the prop ranking tabs.
-        // ----------------------------------------------------
-
         props:
             raw.props
             ||
@@ -768,7 +989,6 @@ function normalizeLegacyPlayer(raw) {
     };
 }
 
-
 // ============================================================
 // BUILD GAMES FOR NEW FORMAT
 // ============================================================
@@ -864,19 +1084,20 @@ function buildPublicGames(players) {
             );
 
 
+            const numericEnvironment =
+                numericOrNull(
+                    player.gameEnvironment
+                );
+
+
             if (
                 player.headlineEligible
                 &&
-                player.gameEnvironment !== null
-                &&
-                player.gameEnvironment !== undefined
+                numericEnvironment !== null
             ) {
 
                 game.environmentValues.push(
-
-                    Number(
-                        player.gameEnvironment
-                    )
+                    numericEnvironment
                 );
             }
         }
@@ -910,25 +1131,33 @@ function buildPublicGames(players) {
                             game.environmentValues.length
                         )
                         :
-                        50;
+                        null;
 
 
                 game.environmentScore =
-                    (
-                        Math.round(
-                            environmentScore
-                            *
+                    environmentScore !== null
+                        ?
+                        (
+                            Math.round(
+                                environmentScore
+                                *
+                                10
+                            )
+                            /
                             10
                         )
-                        /
-                        10
-                    );
+                        :
+                        null;
 
 
                 game.environmentGrade =
-                    grade(
-                        game.environmentScore
-                    );
+                    environmentScore !== null
+                        ?
+                        grade(
+                            game.environmentScore
+                        )
+                        :
+                        "N/A";
 
 
                 game.matchupLabel =
@@ -1699,21 +1928,29 @@ function renderGames() {
 
 
             const environmentScore =
-                (
+                numericOrNull(
                     game.environmentScore
-                    ??
-                    50
                 );
 
 
             const environmentGrade =
                 (
                     game.environmentGrade
-                    ||
-                    grade(
-                        environmentScore
-                    )
-                );
+                    &&
+                    game.environmentGrade !== "N/A"
+                )
+                    ?
+                    game.environmentGrade
+                    :
+                    (
+                        environmentScore !== null
+                            ?
+                            grade(
+                                environmentScore
+                            )
+                            :
+                            "N/A"
+                    );
 
 
             const matchupLabel =
@@ -1724,6 +1961,43 @@ function renderGames() {
                         " @ "
                     )
                 );
+
+
+            const impliedTotals =
+                teams
+
+                .map(
+                    team => {
+
+                        const implied =
+                            getTeamImpliedTotal(
+                                game,
+                                team,
+                                gamePlayers
+                            );
+
+
+                        if (
+                            implied === null
+                            ||
+                            implied === undefined
+                            ||
+                            implied === "—"
+                        ) {
+
+                            return "";
+                        }
+
+
+                        return `
+                            <span class="pill">
+                                ${team} implied ${implied}
+                            </span>
+                        `;
+                    }
+                )
+
+                .join("");
 
 
             html += `
@@ -1778,6 +2052,8 @@ function renderGames() {
                                     }
                                 </span>
 
+                                ${impliedTotals}
+
                             </div>
 
                         </div>
@@ -1801,9 +2077,15 @@ function renderGames() {
                                     ===
                                     "PUBLIC_V2"
                                         ?
-                                        `${round1(
-                                            environmentScore
-                                        )}/100`
+                                        (
+                                            environmentScore !== null
+                                                ?
+                                                `${round1(
+                                                    environmentScore
+                                                )}/100`
+                                                :
+                                                "—"
+                                        )
                                         :
                                         fmt(
                                             environmentGrade
@@ -1918,8 +2200,6 @@ function renderGames() {
         }
     );
 }
-
-
 // ============================================================
 // TEAM DISPLAY
 // ============================================================
@@ -1947,18 +2227,32 @@ function renderTeam(
         "";
 
 
+    // ========================================================
+    // SAFE TEAM ENVIRONMENT HANDLING
+    //
+    // IMPORTANT FOR LEGACY 2025:
+    //
+    // Number(null) becomes 0 in JavaScript.
+    //
+    // The old version therefore treated missing historical
+    // Game Environment values as real zero scores.
+    //
+    // numericOrNull() keeps missing values missing instead.
+    // ========================================================
+
     const environmentValues =
         teamPlayers
 
         .map(
             player =>
-                Number(
+                numericOrNull(
                     player.gameEnvironment
                 )
         )
 
         .filter(
-            Number.isFinite
+            value =>
+                value !== null
         );
 
 
@@ -1975,13 +2269,53 @@ function renderTeam(
                 environmentValues.length
             )
             :
-            50;
+            null;
+
+
+    // --------------------------------------------------------
+    // Historical fallback grades
+    //
+    // If Week 18 has no numeric Game Environment score,
+    // preserve its stored historical grade instead of
+    // manufacturing a zero.
+    // --------------------------------------------------------
+
+    const historicalEnvironmentGrades =
+        teamPlayers
+
+        .map(
+            player =>
+                player.gameEnvironmentGrade
+        )
+
+        .filter(
+            value => {
+
+                return (
+                    value !== null
+                    &&
+                    value !== undefined
+                    &&
+                    value !== ""
+                    &&
+                    value !== "N/A"
+                );
+            }
+        );
 
 
     const environmentGrade =
-        grade(
-            environmentScore
-        );
+        environmentScore !== null
+            ?
+            grade(
+                environmentScore
+            )
+            :
+            (
+                historicalEnvironmentGrades[0]
+                ||
+                "N/A"
+            );
 
 
     const attack =
@@ -2007,13 +2341,14 @@ function renderTeam(
 
                     .map(
                         player =>
-                            Number(
+                            numericOrNull(
                                 player.matchup
                             )
                     )
 
                     .filter(
-                        Number.isFinite
+                        value =>
+                            value !== null
                     );
 
 
@@ -2223,8 +2558,14 @@ function renderTeam(
                         ===
                         "PUBLIC_V2"
                             ?
-                            round1(
-                                environmentScore
+                            (
+                                environmentScore !== null
+                                    ?
+                                    round1(
+                                        environmentScore
+                                    )
+                                    :
+                                    "—"
                             )
                             :
                             environmentGrade
@@ -2300,16 +2641,29 @@ function renderPlayer(player) {
     .map(
         metric => {
 
+            // =================================================
+            // SAFE HISTORICAL NUMERIC HANDLING
+            //
+            // OLD:
+            //
+            //     Number(null) → 0
+            //
+            // NEW:
+            //
+            //     numericOrNull(null) → null
+            //
+            // Therefore legacy Week 18 can fall back to its
+            // stored grade rather than falsely showing 0.
+            // =================================================
+
             const numeric =
-                Number(
+                numericOrNull(
                     metric[1]
                 );
 
 
             const hasNumeric =
-                Number.isFinite(
-                    numeric
-                );
+                numeric !== null;
 
 
             const displayValue =
@@ -2700,8 +3054,6 @@ function setupNav() {
         }
     );
 }
-
-
 // ============================================================
 // RANKINGS DEFINITIONS
 // ============================================================
@@ -2751,15 +3103,6 @@ function buildRankDefinitions() {
 
     // --------------------------------------------------------
     // PROP-ENVIRONMENT TABS
-    //
-    // Only appear when the selected week's public file
-    // actually contains prop-environment scores.
-    //
-    // Week 18 has them.
-    // Current 2026 Week 1 does not yet.
-    //
-    // Future weeks automatically gain them once sanitized
-    // public prop outputs are included.
     // --------------------------------------------------------
 
     if (
@@ -2830,9 +3173,6 @@ function buildRankDefinitions() {
                         0
                     ),
 
-            // THIS IS THE ONLY RANKING TAB THAT SHOWS
-            // THE ACTUAL INDIVIDUAL PROP NAME.
-
             scoreLabel:
                 player =>
                     player.bestProp
@@ -2843,10 +3183,7 @@ function buildRankDefinitions() {
 
 
     // --------------------------------------------------------
-    // NEW PUBLIC DATA WITHOUT PROP OUTPUTS
-    //
-    // Gives useful component rankings until betting/prop
-    // scores are integrated.
+    // FALLBACK WHEN PROP DATA DOES NOT EXIST
     // --------------------------------------------------------
 
     else {
@@ -3366,3 +3703,4 @@ function renderPerformance() {
 // ============================================================
 
 init();
+

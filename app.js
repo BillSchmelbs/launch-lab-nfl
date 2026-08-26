@@ -1424,32 +1424,37 @@ const teams = [
             ) {
 
                 gameMap.set(
-                    gameKey,
-                    {
+    gameKey,
+    {
 
-                        id:
-                            gameKey,
+        id:
+            gameKey,
 
-                        teams:
-                            new Set(),
+        teams:
+            new Set(),
 
-                        players:
-                            [],
+        awayTeam:
+            awayTeam,
 
-                        gameDate:
-                            player.gameDate,
+        homeTeam:
+            homeTeam,
 
-                        gameTime:
-                            player.gameTime,
+        players:
+            [],
 
-                        total:
-                            player.gameTotal,
+        gameDate:
+            player.gameDate,
 
-                        environmentValues:
-                            []
-                    }
-                );
-            }
+        gameTime:
+            player.gameTime,
+
+        total:
+            player.gameTotal,
+
+        environmentValues:
+            []
+    }
+);
 
 
             const game =
@@ -1502,9 +1507,11 @@ const teams = [
             game => {
 
                 const teams =
-                    [
-                        ...game.teams
-                    ];
+    [
+        game.awayTeam,
+        game.homeTeam
+    ]
+    .filter(Boolean);
 
 
                 const environmentScore =

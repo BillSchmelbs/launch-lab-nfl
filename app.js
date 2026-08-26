@@ -1393,12 +1393,20 @@ function buildPublicGames(players) {
             }
 
 
-            const teams = [
+           const awayTeam =
+    player.homeAway === "AWAY"
+        ? player.team
+        : player.opponent;
 
-                player.team,
-                player.opponent
+const homeTeam =
+    player.homeAway === "HOME"
+        ? player.team
+        : player.opponent;
 
-            ].sort();
+const teams = [
+    awayTeam,
+    homeTeam
+];
 
 
             const gameKey =
@@ -1542,9 +1550,7 @@ function buildPublicGames(players) {
 
 
                 game.matchupLabel =
-                    teams.join(
-                        " @ "
-                    );
+    `${teams[0]} @ ${teams[1]}`;
 
 
                 return game;
@@ -2296,16 +2302,24 @@ function renderGames() {
             }
 
 
-            const teams =
-                [
-                    ...new Set(
+            const awayTeam =
+    gamePlayers.find(
+        player =>
+            player.homeAway === "AWAY"
+    )?.team;
 
-                        gamePlayers.map(
-                            player =>
-                                player.team
-                        )
-                    )
-                ];
+const homeTeam =
+    gamePlayers.find(
+        player =>
+            player.homeAway === "HOME"
+    )?.team;
+
+const teams =
+    [
+        awayTeam,
+        homeTeam
+    ]
+    .filter(Boolean);
 
 
             const environmentScore =

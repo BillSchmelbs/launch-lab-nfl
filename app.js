@@ -156,6 +156,18 @@ function numericOrNull(value) {
 //   • spread
 //   • home / away designation
 //
+// IMPORTANT:
+// In the 2026 public data, a POSITIVE spread_line means the
+// HOME team is favored by that amount.
+//
+// Example:
+// NO @ DET
+// Total = 49.5
+// spread_line = +7
+//
+// DET implied = (49.5 + 7) / 2 = 28.25
+// NO implied  = (49.5 - 7) / 2 = 21.25
+//
 // No JSON or Colab change is required.
 // ============================================================
 
@@ -217,18 +229,13 @@ function getTeamImpliedTotal(
     // --------------------------------------------------------
     // NEW FORMAT
     //
-    // spread_line is treated as the HOME-team spread.
+    // spread_line uses Launch Lab's 2026 convention:
     //
-    // home implied = (total - home spread) / 2
-    // away implied = (total + home spread) / 2
+    // POSITIVE spread = HOME team favored
+    // NEGATIVE spread = AWAY team favored
     //
-    // Example:
-    //
-    // Total = 48.5
-    // Home spread = -2.5
-    //
-    // Home implied = 25.5
-    // Away implied = 23.0
+    // home implied = (total + spread) / 2
+    // away implied = (total - spread) / 2
     // --------------------------------------------------------
 
     const representative =
@@ -285,7 +292,7 @@ function getTeamImpliedTotal(
         implied =
             (
                 total
-                -
+                +
                 spread
             )
             /
@@ -302,7 +309,7 @@ function getTeamImpliedTotal(
         implied =
             (
                 total
-                +
+                -
                 spread
             )
             /

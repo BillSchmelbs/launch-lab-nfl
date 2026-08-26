@@ -1393,29 +1393,48 @@ function buildPublicGames(players) {
             }
 
 
-           const awayTeam =
-    player.homeAway === "AWAY"
-        ? player.team
-        : player.opponent;
+            // --------------------------------------------------------
+            // DETERMINE TRUE AWAY / HOME ORDER
+            // --------------------------------------------------------
 
-const homeTeam =
-    player.homeAway === "HOME"
-        ? player.team
-        : player.opponent;
+            const awayTeam =
+                player.homeAway === "AWAY"
+                    ? player.team
+                    : player.opponent;
 
-const teams = [
-    awayTeam,
-    homeTeam
-];
+
+            const homeTeam =
+                player.homeAway === "HOME"
+                    ? player.team
+                    : player.opponent;
+
+
+            // --------------------------------------------------------
+            // GAME KEY
+            //
+            // Use a stable team combination for identifying the game.
+            // The display order is stored separately as awayTeam/homeTeam.
+            // --------------------------------------------------------
+
+            const gameTeamsForKey =
+                [
+                    player.team,
+                    player.opponent
+                ]
+                .sort();
 
 
             const gameKey =
                 `${
                     player.gameDate || ""
                 }_${
-                    teams.join("_")
+                    gameTeamsForKey.join("_")
                 }`;
 
+
+            // --------------------------------------------------------
+            // CREATE GAME ONCE
+            // --------------------------------------------------------
 
             if (
                 !gameMap.has(
@@ -1424,44 +1443,88 @@ const teams = [
             ) {
 
                 gameMap.set(
-    gameKey,
-    {
+                    gameKey,
+                    {
 
-        id:
-            gameKey,
+                        id:
+                            gameKey,
 
-        teams:
-            new Set(),
+                        teams:
+                            new Set(),
 
-        awayTeam:
-            awayTeam,
+                        awayTeam:
+                            awayTeam,
 
-        homeTeam:
-            homeTeam,
+                        homeTeam:
+                            homeTeam,
 
-        players:
-            [],
+                        players:
+                            [],
 
-        gameDate:
-            player.gameDate,
+                        gameDate:
+                            player.gameDate,
 
-        gameTime:
-            player.gameTime,
+                        gameTime:
+                            player.gameTime,
 
-        total:
-            player.gameTotal,
+                        total:
+                            player.gameTotal,
 
-        environmentValues:
-            []
-    }
-);
+                        environmentValues:
+                            []
+                    }
+                );
+            }
 
+
+            // --------------------------------------------------------
+            // GET EXISTING GAME
+            // --------------------------------------------------------
 
             const game =
                 gameMap.get(
                     gameKey
                 );
 
+
+            // --------------------------------------------------------
+            // PRESERVE TRUE AWAY / HOME INFORMATION
+            //
+            // If a later player row contains an explicit designation,
+            // keep the game object synchronized with it.
+            // --------------------------------------------------------
+
+            if (
+                player.homeAway
+                ===
+                "AWAY"
+            ) {
+
+                game.awayTeam =
+                    player.team;
+
+                game.homeTeam =
+                    player.opponent;
+            }
+
+
+            else if (
+                player.homeAway
+                ===
+                "HOME"
+            ) {
+
+                game.homeTeam =
+                    player.team;
+
+                game.awayTeam =
+                    player.opponent;
+            }
+
+
+            // --------------------------------------------------------
+            // ADD TEAMS / PLAYER
+            // --------------------------------------------------------
 
             game.teams.add(
                 player.team
@@ -1477,6 +1540,10 @@ const teams = [
                 player.id
             );
 
+
+            // --------------------------------------------------------
+            // GAME ENVIRONMENT INPUT
+            // --------------------------------------------------------
 
             const numericEnvironment =
                 numericOrNull(
@@ -1498,6 +1565,10 @@ const teams = [
     );
 
 
+    // ============================================================
+    // FINALIZE GAMES
+    // ============================================================
+
     return (
         [
             ...gameMap.values()
@@ -1506,13 +1577,56 @@ const teams = [
         .map(
             game => {
 
-                const teams =
-    [
-        game.awayTeam,
-        game.homeTeam
-    ]
-    .filter(Boolean);
+                // ----------------------------------------------------
+                // DISPLAY ORDER MUST ALWAYS BE:
+                //
+                // AWAY @ HOME
+                // ----------------------------------------------------
 
+                const teams =
+                    [
+                        game.awayTeam,
+                        game.homeTeam
+                    ]
+                    .filter(Boolean);
+
+
+                // ----------------------------------------------------
+                // FALLBACK
+                //
+                // Only used if home/away is missing for some future
+                // dataset. This prevents the page from breaking.
+                // ----------------------------------------------------
+
+                if (
+                    teams.length
+                    < 2
+                ) {
+
+                    const fallbackTeams =
+                        [
+                            ...game.teams
+                        ];
+
+                    game.awayTeam =
+                        game.awayTeam
+                        ||
+                        fallbackTeams[0]
+                        ||
+                        null;
+
+                    game.homeTeam =
+                        game.homeTeam
+                        ||
+                        fallbackTeams[1]
+                        ||
+                        null;
+                }
+
+
+                // ----------------------------------------------------
+                // GAME ENVIRONMENT SCORE
+                // ----------------------------------------------------
 
                 const environmentScore =
                     game.environmentValues.length
@@ -1556,13 +1670,35 @@ const teams = [
                         "N/A";
 
 
+                // ----------------------------------------------------
+                // TRUE MATCHUP LABEL
+                // ----------------------------------------------------
+
                 game.matchupLabel =
-    `${teams[0]} @ ${teams[1]}`;
+                    (
+                        game.awayTeam
+                        &&
+                        game.homeTeam
+                    )
+                        ?
+                        `${game.awayTeam} @ ${game.homeTeam}`
+                        :
+                        [
+                            ...game.teams
+                        ]
+                        .join(
+                            " @ "
+                        );
 
 
                 return game;
             }
         )
+
+
+        // ------------------------------------------------------------
+        // CHRONOLOGICAL WEEK ORDER
+        // ------------------------------------------------------------
 
         .sort(
             (a, b) => {
@@ -1600,7 +1736,6 @@ const teams = [
         )
     );
 }
-
 
 // ============================================================
 // BUILD LEGACY GAMES

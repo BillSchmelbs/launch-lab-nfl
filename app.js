@@ -534,7 +534,7 @@ const INFO_TEXT = {
         "Launch Lab’s game-level view of how favorable this matchup is for fantasy scoring overall. Higher scores indicate stronger fantasy conditions.",
 
     positionMatchup:
-        "The QB, RB, WR, and TE boxes show how favorable the opposing defense is for each position. These are ratings — not projected fantasy points or yardage."
+    "The QB, RB, WR, and TE boxes show how favorable the matchup is for the offense at each position. Higher scores mean a more favorable matchup. These are ratings — not projected fantasy points or yardage."
 };
 
 
@@ -2627,23 +2627,31 @@ const teams =
                             >
 
                                 ${
-                                    DATA_MODE
-                                    ===
-                                    "PUBLIC_V2"
-                                        ?
-                                        (
-                                            environmentScore !== null
-                                                ?
-                                                `${round1(
-                                                    environmentScore
-                                                )}/100`
-                                                :
-                                                "—"
-                                        )
-                                        :
-                                        fmt(
-                                            environmentGrade
-                                        )
+                               DATA_MODE
+===
+"PUBLIC_V2"
+    ?
+    (
+        environmentScore !== null
+            ?
+            `
+            <span class="score-number">
+                ${round1(
+                    environmentScore
+                )}/100
+            </span>
+
+            <span class="score-grade-label">
+                ${environmentGrade}
+            </span>
+            `
+            :
+            "—"
+    )
+    :
+    fmt(
+        environmentGrade
+    )
                                 }
 
                             </div>
@@ -2947,33 +2955,43 @@ function renderTeam(
 
                 <div class="attack">
 
-                    <span>
-                        ${pos}
-                    </span>
+    <span>
+        ${pos}
+    </span>
 
-                    <strong
-                        class="
-                            ${
-                                gclass(
-                                    grade(
-                                        score
-                                    )
-                                )
-                            }
-                        "
-                    >
-                        ${
-                            score === null
-                                ?
-                                "—"
-                                :
-                                round1(
-                                    score
-                                )
-                        }
-                    </strong>
+    <strong
+        class="
+            ${
+                gclass(
+                    grade(
+                        score
+                    )
+                )
+            }
+        "
+    >
+        ${
+            score === null
+                ?
+                "—"
+                :
+                `
+                <span class="score-number">
+                    ${round1(
+                        score
+                    )}/100
+                </span>
 
-                </div>
+                <span class="score-grade-label">
+                    ${grade(
+                        score
+                    )}
+                </span>
+                `
+        }
+    </strong>
+
+</div>
                 `;
             }
         )
@@ -3260,23 +3278,31 @@ function renderTeam(
                         }
                     "
                 >
-                    ${
-                        DATA_MODE
-                        ===
-                        "PUBLIC_V2"
-                            ?
-                            (
-                                environmentScore !== null
-                                    ?
-                                    round1(
-                                        environmentScore
-                                    )
-                                    :
-                                    "—"
-                            )
-                            :
-                            environmentGrade
-                    }
+                 ${
+    DATA_MODE
+    ===
+    "PUBLIC_V2"
+        ?
+        (
+            environmentScore !== null
+                ?
+                `
+                <span class="score-number">
+                    ${round1(
+                        environmentScore
+                    )}/100
+                </span>
+
+                <span class="score-grade-label">
+                    ${environmentGrade}
+                </span>
+                `
+                :
+                "—"
+        )
+        :
+        environmentGrade
+}
                 </div>
 
                 <div class="player-sub">
@@ -3288,21 +3314,26 @@ function renderTeam(
         </div>
 
 
-        <div class="player-sub info-label">
+       <div class="player-sub info-label matchup-heading">
 
-            How the matchup grades by position
+    How favorable is this matchup?
 
-            ${infoButtonHtml(
-                "positionMatchup",
-                "Position Matchup Ratings"
-            )}
+    ${infoButtonHtml(
+        "positionMatchup",
+        "Position Matchup Ratings"
+    )}
 
-        </div>
+</div>
 
 
-        <div class="attack-grid">
-            ${attack}
-        </div>
+<div class="player-sub matchup-helper">
+    Higher scores = more favorable for the offense.
+</div>
+
+
+<div class="attack-grid">
+    ${attack}
+</div>
 
 
         ${sections}
@@ -3408,16 +3439,34 @@ function renderPlayer(player) {
                 </span>
 
                 <strong
-                    class="
-                        ${
-                            gclass(
-                                metric[2]
-                            )
-                        }
-                    "
-                >
-                    ${displayValue}
-                </strong>
+    class="
+        ${
+            gclass(
+                metric[2]
+            )
+        }
+    "
+>
+    <span class="score-number">
+        ${displayValue}
+    </span>
+
+    ${
+        DATA_MODE
+        ===
+        "PUBLIC_V2"
+            ?
+            `
+            <span class="score-grade-label">
+                ${fmt(
+                    metric[2]
+                )}
+            </span>
+            `
+            :
+            ""
+    }
+</strong>
 
             </div>
             `;
@@ -3447,29 +3496,35 @@ function renderPlayer(player) {
             .map(
                 ([key, value]) => `
 
-                    <div class="prop">
+                   <div class="prop">
 
-                        <span>
-                            ${key}
-                        </span>
+    <span>
+        ${key}
+    </span>
 
-                        <strong
-                            class="
-                                ${
-                                    gclass(
-                                        value.grade
-                                    )
-                                }
-                            "
-                        >
-                            ${
-                                fmt(
-                                    value.score
-                                )
-                            }
-                        </strong>
+    <strong
+        class="
+            ${
+                gclass(
+                    value.grade
+                )
+            }
+        "
+    >
+        <span class="score-number">
+            ${fmt(
+                value.score
+            )}/100
+        </span>
 
-                    </div>
+        <span class="score-grade-label">
+            ${fmt(
+                value.grade
+            )}
+        </span>
+    </strong>
+
+</div>
                 `
             )
 
@@ -3545,18 +3600,28 @@ function renderPlayer(player) {
                     "
                 >
                     ${
-                        DATA_MODE
-                        ===
-                        "PUBLIC_V2"
-                            ?
-                            `${round1(
-                                player.outlook
-                            )}/100`
-                            :
-                            fmt(
-                                player.outlook
-                            )
-                    }
+    DATA_MODE
+    ===
+    "PUBLIC_V2"
+        ?
+        `
+        <span class="score-number">
+            ${round1(
+                player.outlook
+            )}/100
+        </span>
+
+        <span class="score-grade-label">
+            ${fmt(
+                player.outlookGrade
+            )}
+        </span>
+        `
+        :
+        fmt(
+            player.outlook
+        )
+}
                 </div>
 
 

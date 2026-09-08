@@ -1772,9 +1772,12 @@ async function init() {
     try {
 
         const indexResponse =
-            await fetch(
-                "data/index.json"
-            );
+    await fetch(
+        "data/index.json",
+        {
+            cache: "no-store"
+        }
+    );
 
 
         if (
@@ -1925,9 +1928,12 @@ async function init() {
 async function loadWeek(file) {
 
     const response =
-        await fetch(
-            "data/" + file
-        );
+    await fetch(
+        "data/" + file,
+        {
+            cache: "no-store"
+        }
+    );
 
 
     if (

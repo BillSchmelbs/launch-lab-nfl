@@ -3004,20 +3004,141 @@ function renderTeam(
                         }
                     )
 
-                    .sort(
-                        (a, b) =>
-                            Number(
-                                b.outlook
-                                ||
-                                0
-                            )
-                            -
-                            Number(
-                                a.outlook
-                                ||
-                                0
-                            )
+                   .sort(
+    (a, b) => {
+
+        // ========================================================
+        // WEEKLY BOARD DISPLAY ORDER
+        //
+        // Sort players by CURRENT DEPTH-CHART ROLE first:
+        //
+        // QB1 -> QB2 -> QB3
+        // RB1 -> RB2 -> RB3
+        // WR1 -> WR2 -> WR3
+        // TE1 -> TE2 -> TE3
+        //
+        // If two players have the same role, or their role cannot
+        // be parsed, use Launch Lab Outlook as the tie-breaker.
+        //
+        // IMPORTANT:
+        // This changes DISPLAY ORDER ONLY.
+        // It does NOT change any Launch Lab model score,
+        // opportunity score, quality score, matchup score,
+        // prop score, or Rankings-page ordering.
+        // ========================================================
+
+        const getDepthRank =
+            player => {
+
+                const role =
+                    String(
+                        player.role
+                        ||
+                        ""
+                    )
+                    .trim()
+                    .toUpperCase();
+
+
+                const match =
+                    role.match(
+                        /^(QB|RB|WR|TE)(\d+)$/
                     );
+
+
+                if (
+                    !match
+                ) {
+
+                    return 999;
+                }
+
+
+                return Number(
+                    match[2]
+                );
+            };
+
+
+        const aDepth =
+            getDepthRank(
+                a
+            );
+
+
+        const bDepth =
+            getDepthRank(
+                b
+            );
+
+
+        // --------------------------------------------------------
+        // PRIMARY SORT:
+        // Current depth-chart role
+        // --------------------------------------------------------
+
+        if (
+            aDepth
+            !==
+            bDepth
+        ) {
+
+            return (
+                aDepth
+                -
+                bDepth
+            );
+        }
+
+
+        // --------------------------------------------------------
+        // SECONDARY SORT:
+        // Launch Lab Outlook, highest first
+        // --------------------------------------------------------
+
+        const outlookDifference =
+            Number(
+                b.outlook
+                ||
+                0
+            )
+            -
+            Number(
+                a.outlook
+                ||
+                0
+            );
+
+
+        if (
+            outlookDifference
+            !==
+            0
+        ) {
+
+            return outlookDifference;
+        }
+
+
+        // --------------------------------------------------------
+        // FINAL TIE-BREAKER:
+        // Alphabetical player name
+        // --------------------------------------------------------
+
+        return String(
+            a.name
+            ||
+            ""
+        )
+        .localeCompare(
+            String(
+                b.name
+                ||
+                ""
+            )
+        );
+    }
+);
 
 
                 if (

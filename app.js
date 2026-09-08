@@ -2554,8 +2554,19 @@ const teams =
                         <div>
 
                             <div class="matchup">
-                                ${matchupLabel}
-                            </div>
+
+    <span>
+        ${matchupLabel}
+    </span>
+
+    <span
+        class="material-symbols-rounded expand-chevron game-chevron"
+        aria-hidden="true"
+    >
+        expand_more
+    </span>
+
+</div>
 
                             <div class="game-meta">
 
@@ -2697,40 +2708,66 @@ const teams =
         `;
 
 
-    $$(".game-summary")
-    .forEach(
-        element => {
+   $$(".game-summary")
+.forEach(
+    element => {
 
-            element.onclick =
-                () => {
+        element.onclick =
+            () => {
 
+                const gameCard =
                     element
-                    .parentElement
+                    .parentElement;
+
+
+                const isOpen =
+                    gameCard
                     .classList
                     .toggle(
                         "open"
                     );
-                };
-        }
-    );
+
+
+                element
+                    .classList
+                    .toggle(
+                        "is-open",
+                        isOpen
+                    );
+            };
+    }
+);
 
 
     $$(".posbtn")
-    .forEach(
-        element => {
+.forEach(
+    element => {
 
-            element.onclick =
-                () => {
+        element.onclick =
+            () => {
 
+                const playerList =
                     element
-                    .nextElementSibling
+                    .nextElementSibling;
+
+
+                const isOpen =
+                    playerList
                     .classList
                     .toggle(
                         "open"
                     );
-                };
-        }
-    );
+
+
+                element
+                    .classList
+                    .toggle(
+                        "is-open",
+                        isOpen
+                    );
+            };
+    }
+);
 
 
     $$(".detail-btn")
@@ -3158,8 +3195,19 @@ function renderTeam(
                 return `
 
                 <button class="posbtn">
-                    ${pos} · ${players.length} players
-                </button>
+
+    <span>
+        ${pos} · ${players.length} players
+    </span>
+
+    <span
+        class="material-symbols-rounded expand-chevron"
+        aria-hidden="true"
+    >
+        expand_more
+    </span>
+
+</button>
 
 
                 <div class="player-list">

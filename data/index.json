@@ -2,14 +2,24 @@
   "product": "Launch Lab NFL",
   "current": {
     "season": 2026,
-    "week": 1,
-    "week_key": "2026-01",
+    "week": 2,
+    "week_key": "2026-02",
+    "label": "2026 Week 2",
     "site_state": "EARLY_SEASON_PREVIEW",
-    "week_file": "week-2026-01.json",
-    "headline_file": "headlines-2026-01.json",
+    "week_file": "week-2026-02.json",
+    "headline_file": "headlines-2026-02.json",
     "model_version": "V2"
   },
   "available_weeks": [
+    {
+      "season": 2026,
+      "week": 2,
+      "week_key": "2026-02",
+      "label": "2026 Week 2",
+      "site_state": "EARLY_SEASON_PREVIEW",
+      "week_file": "week-2026-02.json",
+      "headline_file": "headlines-2026-02.json"
+    },
     {
       "season": 2026,
       "week": 1,
@@ -29,5 +39,5 @@
       "headline_file": null
     }
   ],
-  "created_at_utc": "2026-09-08T18:10:01.930124+00:00"
+  "created_at_utc": "2026-09-17T16:39:54.138661+00:00"
 }

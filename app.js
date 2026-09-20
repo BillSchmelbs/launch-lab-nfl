@@ -32,6 +32,10 @@ let PLAYER_MAP = new Map();
 
 let DATA_MODE = null;
 
+// Presentation-only GSIS -> Sleeper ID map used for player headshots.
+// Failure to load this map never blocks Launch Lab; initials remain the fallback.
+let SLEEPER_ID_BY_GSIS = new Map();
+
 
 const $ = selector =>
     document.querySelector(selector);
@@ -999,11 +1003,10 @@ function normalizePublicPlayer(raw) {
         id:
             raw.player_id,
 
-        // Sleeper is already Launch Lab's authoritative public player crosswalk.
-        // Keep the ID on the normalized player so the presentation layer can
-        // request a headshot without changing the model/public JSON contract.
+        // Public Launch Lab IDs are GSIS IDs. Resolve the Sleeper ID only
+        // in the presentation layer so model/public JSON contracts stay untouched.
         sleeperId:
-            raw.player_id,
+            SLEEPER_ID_BY_GSIS.get(String(raw.player_id || "")) || null,
 
         name:
             raw.player_name,
@@ -1827,9 +1830,41 @@ function buildLegacyGames(data) {
 // INITIALIZE
 // ============================================================
 
+async function loadHeadshotCrosswalk() {
+    const url = "https://cdn.jsdelivr.net/gh/antonwilms/sleeper-dashboard-data@main/nflverse/playerids.json";
+
+    try {
+        const response = await fetch(url, { cache: "force-cache" });
+        if (!response.ok) throw new Error(`Headshot crosswalk HTTP ${response.status}`);
+
+        const payload = await response.json();
+        const ids = payload?.ids || {};
+
+        SLEEPER_ID_BY_GSIS = new Map(
+            Object.entries(ids)
+                .filter(([, value]) => value?.sleeperId)
+                .map(([gsisId, value]) => [String(gsisId), String(value.sleeperId)])
+        );
+
+        console.info(`Launch Lab headshot crosswalk loaded: ${SLEEPER_ID_BY_GSIS.size} IDs`);
+    } catch (error) {
+        SLEEPER_ID_BY_GSIS = new Map();
+        console.warn("Launch Lab headshots unavailable; using initials fallback.", error);
+    }
+}
+
+
+// ============================================================
+// START APPLICATION
+// ============================================================
+
 async function init() {
 
     try {
+        // Headshots are cosmetic. Awaiting the crosswalk ensures normalized
+        // players receive the correct Sleeper ID, while failure safely falls
+        // back to the existing initials UI.
+        await loadHeadshotCrosswalk();
 
         const indexResponse =
     await fetch(

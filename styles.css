@@ -1349,3 +1349,13 @@ select:focus,input:focus{outline:none!important;border-color:var(--ll-blue)!impo
 .launch-signal-icon{font-size:2rem;filter:drop-shadow(0 0 12px rgba(255,107,44,.28))}.launch-signal span{display:block;color:var(--ll-orange);font-size:.66rem;font-weight:900;letter-spacing:.15em}.launch-signal strong{display:block;color:#fff;margin:2px 0}.launch-signal p{margin:0;color:var(--ll-muted);font-size:.74rem}
 @media(max-width:980px){.rankings-workspace{grid-template-columns:1fr}.player-intel{position:static;min-height:auto}.rankings-workspace .rank-list{max-height:none}}
 @media(max-width:560px){.rank-row-v2{grid-template-columns:28px 38px minmax(0,1fr) auto!important;padding:10px!important}.rank-avatar{width:36px;height:36px}.rank-score-wrap span{display:none}.intel-hero{grid-template-columns:58px 1fr}.intel-avatar{width:58px;height:58px}.intel-score{grid-column:1/-1;display:flex;align-items:baseline;gap:8px;text-align:left}.intel-score strong{font-size:1.8rem}}
+
+
+/* UI V2 — Player/team visual system */
+.player-visual{--team-accent:#38BDF8;position:relative;display:grid;place-items:center;overflow:hidden;flex:0 0 auto;background:radial-gradient(circle at 35% 25%,color-mix(in srgb,var(--team-accent) 40%,#142033),#09121f 70%);border:1px solid color-mix(in srgb,var(--team-accent) 52%,transparent);box-shadow:inset 0 0 24px rgba(255,255,255,.025),0 0 20px color-mix(in srgb,var(--team-accent) 12%,transparent)}
+.player-visual-ring{position:absolute;inset:5px;border:1px solid rgba(255,255,255,.09);border-radius:inherit}
+.player-visual-initials{position:relative;z-index:2;font-weight:950;color:#fff;letter-spacing:-.05em;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.player-visual-team{position:absolute;z-index:3;right:4px;bottom:3px;padding:2px 4px;border-radius:4px;background:rgba(2,6,12,.78);color:#fff;font-size:.43rem;font-weight:900;letter-spacing:.06em}
+.rank-player-visual{width:42px;height:42px;border-radius:50%;font-size:.72rem}
+.intel-player-visual{width:76px;height:76px;border-radius:18px;font-size:1.2rem}
+@media(max-width:560px){.rank-player-visual{width:36px;height:36px}.intel-player-visual{width:58px;height:58px}}

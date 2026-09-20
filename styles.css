@@ -1501,3 +1501,29 @@ select:focus,input:focus{outline:none!important;border-color:var(--ll-blue)!impo
 .intel-player-visual .player-headshot {
     object-position: center 5%;
 }
+
+
+/* UI V2 — Ranking prop context */
+.rank-prop-signal{
+    margin-top:4px;
+    color:#BDEBFF;
+    font-size:.67rem;
+    font-weight:800;
+    letter-spacing:.045em;
+    line-height:1.2;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.rank-prop-signal span{
+    color:var(--ll-blue);
+    font-weight:900;
+    letter-spacing:.08em;
+}
+@media(max-width:560px){
+    .rank-prop-signal{
+        margin-top:3px;
+        font-size:.61rem;
+        letter-spacing:.025em;
+    }
+}

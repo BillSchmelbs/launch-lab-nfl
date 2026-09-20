@@ -523,6 +523,33 @@ function rushingScore(player) {
 }
 
 
+function passingScore(player) {
+
+    if (
+        player?.position
+        !==
+        "QB"
+    ) {
+
+        return 0;
+    }
+
+
+    return Math.max(
+
+        propScore(
+            player,
+            "Passing Yards"
+        ),
+
+        propScore(
+            player,
+            "Passing TD"
+        )
+    );
+}
+
+
 function tdScore(player) {
 
     return Math.max(
@@ -2132,7 +2159,9 @@ async function loadWeek(file) {
 
 
     renderRankings(
-        "outlook"
+        hasPublicPropData()
+            ? "td"
+            : "outlook"
     );
 
 
@@ -3931,54 +3960,96 @@ function setupNav() {
 
 function buildRankDefinitions() {
 
-    const definitions = {
-
-        outlook: {
-
-            title:
-                "Top Player Outlooks",
-
-            score:
-                player =>
-                    Number(
-                        player.outlook
-                        ||
-                        0
-                    ),
-
-            scoreLabel:
-                () =>
-                    "Outlook Score"
-        },
-
-
-        matchup: {
-
-            title:
-                "Best Matchups",
-
-            score:
-                player =>
-                    Number(
-                        player.matchup
-                        ||
-                        0
-                    ),
-
-            scoreLabel:
-                () =>
-                    "Matchup Score"
-        }
-    };
+    const definitions = {};
 
 
     // --------------------------------------------------------
     // PROP-ENVIRONMENT TABS
+    // Preferred public order:
+    // TD -> Outlook -> Matchup -> Passing -> Receiving ->
+    // Rushing -> Best Prop
     // --------------------------------------------------------
 
     if (
         hasPublicPropData()
     ) {
+
+        definitions.td = {
+
+            title:
+                "Best TD Environments",
+
+            score:
+                player =>
+                    tdScore(
+                        player
+                    ),
+
+            scoreLabel:
+                () =>
+                    "TD Score"
+        };
+    }
+
+
+    definitions.outlook = {
+
+        title:
+            "Top Player Outlooks",
+
+        score:
+            player =>
+                Number(
+                    player.outlook
+                    ||
+                    0
+                ),
+
+        scoreLabel:
+            () =>
+                "Outlook Score"
+    };
+
+
+    definitions.matchup = {
+
+        title:
+            "Best Matchups",
+
+        score:
+            player =>
+                Number(
+                    player.matchup
+                    ||
+                    0
+                ),
+
+        scoreLabel:
+            () =>
+                "Matchup Score"
+    };
+
+
+    if (
+        hasPublicPropData()
+    ) {
+
+        definitions.passing = {
+
+            title:
+                "Best Passing Environments",
+
+            score:
+                player =>
+                    passingScore(
+                        player
+                    ),
+
+            scoreLabel:
+                () =>
+                    "Passing Score"
+        };
+
 
         definitions.receiving = {
 
@@ -4011,23 +4082,6 @@ function buildRankDefinitions() {
             scoreLabel:
                 () =>
                     "Rushing Score"
-        };
-
-
-        definitions.td = {
-
-            title:
-                "Best TD Environments",
-
-            score:
-                player =>
-                    tdScore(
-                        player
-                    ),
-
-            scoreLabel:
-                () =>
-                    "TD Score"
         };
 
 
@@ -4144,7 +4198,7 @@ function renderRankings(key) {
     const tabs=$("#rankingTabs");
     if(!tabs) return;
     const rankDefs=buildRankDefinitions();
-    if(!rankDefs[key]) key="outlook";
+    if(!rankDefs[key]) key=rankDefs.td ? "td" : "outlook";
     tabs.innerHTML=Object.entries(rankDefs).map(([rankKey,definition])=>`<button data-rank="${rankKey}" class="${rankKey===key?"active":""}">${definition.title}</button>`).join("");
     tabs.querySelectorAll("button").forEach(button=>{button.onclick=()=>renderRankings(button.dataset.rank);});
     const definition=rankDefs[key];

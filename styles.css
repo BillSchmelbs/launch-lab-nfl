@@ -1570,35 +1570,75 @@ select:focus,input:focus{outline:none!important;border-color:var(--ll-blue)!impo
 
 
 /* === LAUNCH LAB DNA SCORE VISUAL ===
-   Ranking-context score instrument. Fill percentage is the score itself.
-   Color tiers: 95+ bright green glow; 90-94.9 green; 76.3-89.9 blue;
-   58-76.2 yellow; 32.4-57.9 orange; below 32.4 red. */
-.intel-hero{grid-template-columns:76px minmax(0,1fr) 154px;align-items:center}
+   Full-height double-helix gauge modeled on the approved Launch Lab concept.
+   The helix is always structurally complete; score controls only illuminated fill. */
+.intel-hero{grid-template-columns:76px minmax(0,1fr) 190px;align-items:center}
 .intel-score-inline{display:flex;align-items:baseline;gap:8px;margin-top:20px;white-space:nowrap}
 .intel-score-inline span,.intel-score-inline small{color:var(--ll-muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}
 .intel-score-inline strong{font-size:2.25rem;line-height:1}
-.dna-score-visual{width:154px;display:grid;justify-items:center;align-self:stretch;min-height:188px}
-.dna-meter{position:relative;width:112px;height:154px;filter:drop-shadow(0 0 7px color-mix(in srgb,var(--dna-color) 24%,transparent))}
-.dna-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dna-score-visual{width:190px;display:grid;justify-items:center;align-self:stretch;min-height:240px}
+.dna-meter{position:relative;width:150px;height:205px;margin-right:20px}
+.dna-svg{position:absolute;left:0;top:0;width:92px;height:100%;overflow:visible}
 .dna-svg path,.dna-svg line{fill:none;stroke-linecap:round;stroke-linejoin:round}
-.dna-base path{stroke:#23364a;stroke-width:4}.dna-base line{stroke:#1a2a3a;stroke-width:2.3}
-.dna-fill{position:absolute;inset:0;clip-path:inset(calc((100 - var(--dna-score)) * 1%) 0 0 0);animation:dnaRise .68s cubic-bezier(.22,.8,.28,1) both}
-.dna-active path{stroke:var(--dna-color);stroke-width:4.4}.dna-active line{stroke:var(--dna-color);stroke-width:2.5;opacity:.88}
-.dna-stop{position:absolute;left:50%;top:calc((100 - var(--dna-score)) * 1%);width:72px;border-top:2px solid var(--dna-color);transform:translate(10px,-1px);color:var(--dna-color);filter:drop-shadow(0 0 4px color-mix(in srgb,var(--dna-color) 35%,transparent))}
-.dna-stop span{position:absolute;left:38px;top:-13px;padding:2px 5px;border:1px solid color-mix(in srgb,var(--dna-color) 65%,transparent);border-radius:6px;background:#07101a;color:var(--dna-color);font-size:.62rem;font-weight:900;line-height:1.2}
-.dna-caption{margin-top:1px;text-align:center;line-height:1.25}.dna-caption strong{display:block;color:var(--ll-muted);font-size:.58rem;letter-spacing:.12em}.dna-caption span{display:block;margin-top:3px;color:var(--dna-color);font-size:.62rem;font-weight:900;letter-spacing:.12em}
-.dna-elite-glow .dna-meter{filter:drop-shadow(0 0 5px var(--dna-color)) drop-shadow(0 0 15px color-mix(in srgb,var(--dna-color) 70%,transparent)) drop-shadow(0 0 28px color-mix(in srgb,var(--dna-color) 34%,transparent))}
-.dna-elite-glow .dna-active path,.dna-elite-glow .dna-active line{stroke-width:5}
+.dna-base path{stroke:#173247;stroke-width:4.2}
+.dna-base line{stroke:#19384c;stroke-width:2}
+.dna-fill{position:absolute;left:0;top:0;width:92px;height:100%;overflow:hidden;clip-path:inset(calc((100 - var(--dna-score)) * 1%) 0 0 0);animation:dnaRise .7s cubic-bezier(.22,.8,.28,1) both}
+.dna-active{width:92px}
+.dna-active path{stroke:var(--dna-color);stroke-width:4.7}
+.dna-active line{stroke:var(--dna-color);stroke-width:2.4;opacity:.92}
+.dna-scale{position:absolute;left:103px;top:0;width:47px;height:100%;border-left:2px solid #5fcff4}
+.dna-scale-tick{position:absolute;left:-1px;width:46px;height:1px;transform:translateY(-50%);font-style:normal}
+.dna-scale-tick i{position:absolute;left:0;top:0;width:8px;border-top:1px solid #5fcff4}
+.dna-scale-tick b{position:absolute;left:13px;top:-7px;color:#b7c9d9;font-size:.57rem;font-weight:650;line-height:1}
+.dna-stop{position:absolute;left:77px;top:calc((100 - var(--dna-score)) * 1%);width:27px;border-top:2px solid var(--dna-color);transform:translateY(-1px);color:var(--dna-color);filter:drop-shadow(0 0 5px color-mix(in srgb,var(--dna-color) 40%,transparent));z-index:5}
+.dna-stop span{position:absolute;left:28px;top:-13px;min-width:43px;padding:3px 6px;border:1.5px solid var(--dna-color);border-radius:7px;background:#07101a;color:#fff;font-size:.66rem;font-weight:900;line-height:1.2;text-align:center;box-shadow:0 0 11px color-mix(in srgb,var(--dna-color) 30%,transparent)}
+.dna-caption{margin-top:3px;margin-left:-28px;text-align:center;line-height:1.25}
+.dna-caption strong{display:block;color:var(--ll-muted);font-size:.62rem;letter-spacing:.13em}
+.dna-caption span{display:block;margin-top:3px;color:var(--dna-color);font-size:.69rem;font-weight:900;letter-spacing:.13em}
+.dna-elite-glow .dna-meter{filter:drop-shadow(0 0 6px var(--dna-color)) drop-shadow(0 0 18px color-mix(in srgb,var(--dna-color) 68%,transparent)) drop-shadow(0 0 30px color-mix(in srgb,var(--dna-color) 35%,transparent))}
+.dna-elite-glow .dna-active path{stroke-width:5.2}
 @keyframes dnaRise{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(calc((100 - var(--dna-score)) * 1%) 0 0 0)}}
 @media(prefers-reduced-motion:reduce){.dna-fill{animation:none}}
+
 @media(max-width:980px){
-.rank-mobile-intel .intel-hero{grid-template-columns:58px minmax(0,1fr) 126px;min-height:184px}
-.rank-mobile-intel .intel-title{align-self:start;padding-top:4px}.rank-mobile-intel .intel-score-inline{margin-top:18px}.rank-mobile-intel .intel-score-inline strong{font-size:1.85rem}
-.rank-mobile-intel .dna-score-visual{width:126px;min-height:174px}.rank-mobile-intel .dna-meter{width:94px;height:142px}}
+.rank-mobile-intel .intel-hero{grid-template-columns:58px minmax(0,1fr) 158px;min-height:235px;align-items:start}
+.rank-mobile-intel .intel-title{align-self:start;padding-top:4px}
+.rank-mobile-intel .intel-score-inline{margin-top:18px}
+.rank-mobile-intel .intel-score-inline strong{font-size:1.85rem}
+.rank-mobile-intel .dna-score-visual{width:158px;min-height:228px}
+.rank-mobile-intel .dna-meter{width:136px;height:198px;margin-right:0}
+.rank-mobile-intel .dna-svg,.rank-mobile-intel .dna-fill,.rank-mobile-intel .dna-active{width:82px}
+.rank-mobile-intel .dna-scale{left:91px;width:44px}
+.rank-mobile-intel .dna-stop{left:68px;width:23px}
+.rank-mobile-intel .dna-stop span{left:24px}
+.rank-mobile-intel .dna-caption{margin-left:-22px}
+}
 @media(max-width:560px){
-.rank-mobile-intel .intel-hero{grid-template-columns:58px minmax(0,1fr) 112px!important;gap:10px}.rank-mobile-intel .intel-player-visual{align-self:start}
-.rank-mobile-intel .intel-title h3{font-size:1.32rem!important}.rank-mobile-intel .intel-title p{font-size:.78rem}
-.rank-mobile-intel .intel-score-inline{display:grid;grid-template-columns:auto auto;justify-content:start;gap:3px 7px;margin-top:16px}.rank-mobile-intel .intel-score-inline span{grid-column:1/-1}.rank-mobile-intel .intel-score-inline strong{font-size:1.7rem}
-.rank-mobile-intel .dna-score-visual{width:112px;min-height:166px}.rank-mobile-intel .dna-meter{width:84px;height:136px}.rank-mobile-intel .dna-stop{width:50px;transform:translate(8px,-1px)}.rank-mobile-intel .dna-stop span{left:23px;font-size:.56rem}}
+.rank-mobile-intel .intel-hero{grid-template-columns:58px minmax(0,1fr) 136px!important;gap:9px;min-height:225px}
+.rank-mobile-intel .intel-player-visual{align-self:start}
+.rank-mobile-intel .intel-title h3{font-size:1.28rem!important}
+.rank-mobile-intel .intel-title p{font-size:.76rem}
+.rank-mobile-intel .intel-score-inline{display:grid;grid-template-columns:auto auto;justify-content:start;gap:3px 7px;margin-top:17px}
+.rank-mobile-intel .intel-score-inline span{grid-column:1/-1}
+.rank-mobile-intel .intel-score-inline strong{font-size:1.7rem}
+.rank-mobile-intel .dna-score-visual{width:136px;min-height:216px}
+.rank-mobile-intel .dna-meter{width:126px;height:187px}
+.rank-mobile-intel .dna-svg,.rank-mobile-intel .dna-fill,.rank-mobile-intel .dna-active{width:74px}
+.rank-mobile-intel .dna-scale{left:82px;width:43px}
+.rank-mobile-intel .dna-scale-tick b{left:12px;font-size:.54rem}
+.rank-mobile-intel .dna-stop{left:61px;width:21px}
+.rank-mobile-intel .dna-stop span{left:22px;min-width:39px;font-size:.58rem;padding:3px 5px}
+.rank-mobile-intel .dna-caption{margin-left:-17px}
+}
 @media(max-width:390px){
-.rank-mobile-intel .intel-hero{grid-template-columns:52px minmax(0,1fr) 96px!important;gap:8px}.rank-mobile-intel .intel-player-visual{width:52px;height:52px}.rank-mobile-intel .dna-score-visual{width:96px}.rank-mobile-intel .dna-meter{width:74px;height:128px}.rank-mobile-intel .intel-score-inline strong{font-size:1.55rem}}
+.rank-mobile-intel .intel-hero{grid-template-columns:52px minmax(0,1fr) 119px!important;gap:7px}
+.rank-mobile-intel .intel-player-visual{width:52px;height:52px}
+.rank-mobile-intel .dna-score-visual{width:119px}
+.rank-mobile-intel .dna-meter{width:113px;height:177px}
+.rank-mobile-intel .dna-svg,.rank-mobile-intel .dna-fill,.rank-mobile-intel .dna-active{width:66px}
+.rank-mobile-intel .dna-scale{left:73px;width:39px}
+.rank-mobile-intel .dna-scale-tick b{font-size:.5rem}
+.rank-mobile-intel .dna-stop{left:54px;width:19px}
+.rank-mobile-intel .dna-stop span{left:20px;min-width:36px;font-size:.54rem}
+.rank-mobile-intel .intel-score-inline strong{font-size:1.5rem}
+}

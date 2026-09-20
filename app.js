@@ -4321,7 +4321,7 @@ function renderRankings(key) {
                 x.classList.remove("selected");
                 x.setAttribute("aria-expanded","false");
             });
-            $(".rank-mobile-intel").forEach(panel=>{
+            $$(".rank-mobile-intel").forEach(panel=>{
                 panel.innerHTML="";
                 panel.classList.remove("open");
             });

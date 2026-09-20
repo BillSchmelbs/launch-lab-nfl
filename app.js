@@ -4200,16 +4200,14 @@ function flaskScoreHtml(score, scoreLabel) {
         `<i class="flask-bubble" style="left:${left}%;bottom:${18 + index*12}%;--bubble-delay:${index*0.11}s"></i>`
     ).join("");
     const overflow = tier.glow ? `
-        <div class="flask-overflow" aria-hidden="true">
-            <i></i><i></i><i></i>
-        </div>` : "";
+        <div class="flask-overflow" aria-hidden="true"><i></i><i></i><i></i></div>` : "";
 
     return `
         <div class="flask-score-visual ${tier.glow ? "flask-elite-glow" : ""}" style="--flask-score:${value};--flask-color:${tier.color}">
             ${overflow}
             <div class="flask-meter" aria-label="${round1(value)} out of 100 ${label.toLowerCase()} rating">
-                <svg class="flask-outline" viewBox="0 0 120 150" aria-hidden="true">
-                    <path d="M43 8 H77 M48 8 V45 L17 119 Q11 136 29 140 H91 Q109 136 103 119 L72 45 V8"></path>
+                <svg class="flask-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M35 2 H65 M39 2 V18 L8 88 Q4 98 16 98 H84 Q96 98 92 88 L61 18 V2"></path>
                 </svg>
                 <div class="flask-liquid-clip">
                     <div class="flask-liquid">${bubbles}</div>
@@ -4218,10 +4216,7 @@ function flaskScoreHtml(score, scoreLabel) {
                 <div class="flask-scale" aria-hidden="true">${ticks}</div>
                 <div class="flask-stop"><span>${round1(value)}</span></div>
             </div>
-            <div class="flask-caption">
-                <strong>${label}</strong>
-                <span>${tier.label}</span>
-            </div>
+            <div class="flask-caption"><strong>${label}</strong><span>${tier.label}</span></div>
         </div>
     `;
 }

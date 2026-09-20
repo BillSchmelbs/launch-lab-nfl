@@ -4194,6 +4194,102 @@ function renderPlayerIntel(player, scoreLabel, scoreValue) {
     panel.innerHTML = `<div class="intel-hero">${playerVisualHtml(player,"intel-player-visual")}<div class="intel-title"><div class="eyebrow">${player.team} · ${player.position}${player.role?" · "+player.role:""}</div><h3>${player.name}</h3><p>vs ${player.opponent}${player.homeAway?" · "+player.homeAway:""}</p></div><div class="intel-score"><span>${scoreLabel||"Outlook Score"}</span><strong class="${gclass(grade(activeScore))}">${round1(activeScore)}</strong><small>${grade(activeScore)}</small></div></div><div class="intel-section-title">MODEL INSTRUMENTS</div><div class="intel-metrics">${metricHtml}</div><div class="intel-chips">${player.confidenceBadge?`<span>${player.confidenceBadge}</span>`:""}${player.rosterStatus?`<span>${player.rosterStatus}</span>`:""}${player.gameTotal?`<span>O/U ${round1(player.gameTotal)}</span>`:""}</div>${signal}`;
 }
 
+function rankingPropSignal(player, key) {
+
+    const candidates = {
+
+        passing: [
+            "Passing Yards",
+            "Passing TD"
+        ],
+
+        receiving: [
+            "Receiving Yards",
+            "Receptions"
+        ],
+
+        rushing: [
+            "Rushing Yards"
+        ],
+
+        td: [
+            "TD",
+            "Passing TD",
+            "Receiving TD",
+            "Rushing TD"
+        ]
+    };
+
+
+    if (
+        key === "prop"
+        ||
+        key === "outlook"
+        ||
+        key === "matchup"
+    ) {
+
+        const score =
+            numericOrNull(
+                player.bestPropScore
+            );
+
+
+        return (
+            player.bestProp
+            &&
+            score !== null
+        )
+            ? {
+                label: player.bestProp,
+                score
+            }
+            : null;
+    }
+
+
+    const props =
+        candidates[key]
+        ||
+        [];
+
+
+    let best =
+        null;
+
+
+    props.forEach(
+        propName => {
+
+            const score =
+                numericOrNull(
+                    player?.props?.[propName]?.score
+                );
+
+
+            if (
+                score !== null
+                &&
+                (
+                    !best
+                    ||
+                    score > best.score
+                )
+            ) {
+
+                best = {
+                    label: propName,
+                    score
+                };
+            }
+        }
+    );
+
+
+    return best;
+}
+
+
 function renderRankings(key) {
     const tabs=$("#rankingTabs");
     if(!tabs) return;
@@ -4205,8 +4301,11 @@ function renderRankings(key) {
     const rows=PLAYERS.filter(player=>DATA_MODE==="LEGACY_2025"||player.headlineEligible).map(player=>[player,Number(definition.score(player))]).filter(row=>Number.isFinite(row[1])&&row[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,50);
     $("#rankingsList").innerHTML=rows.map(([player,score],index)=>{
         const scoreLabel=definition.scoreLabel(player);
-        const initials=(player.name||"?").split(" ").map(x=>x[0]).slice(0,2).join("");
-        return `<button class="rank-row rank-row-v2" type="button" data-rank-index="${index}"><div class="rank-num">${index+1}</div>${playerVisualHtml(player,"rank-player-visual")}<div class="rank-player"><strong>${player.name}</strong><div class="player-sub">${player.team} ${player.position} · vs ${player.opponent}</div></div><div class="rank-score-wrap"><div class="score small ${gclass(grade(score))}">${round1(score)}</div><span>${scoreLabel}</span></div></button>`;
+        const propSignal=rankingPropSignal(player,key);
+        const propSignalHtml=propSignal
+            ? `<div class="rank-prop-signal"><span>TOP PROP</span> · ${propSignal.label.toUpperCase()}</div>`
+            : "";
+        return `<button class="rank-row rank-row-v2" type="button" data-rank-index="${index}"><div class="rank-num">${index+1}</div>${playerVisualHtml(player,"rank-player-visual")}<div class="rank-player"><strong>${player.name}</strong><div class="player-sub">${player.team} ${player.position} · vs ${player.opponent}</div>${propSignalHtml}</div><div class="rank-score-wrap"><div class="score small ${gclass(grade(score))}">${round1(score)}</div><span>${scoreLabel}</span></div></button>`;
     }).join("");
     const buttons=$$(".rank-row-v2");
     buttons.forEach(button=>{button.onclick=()=>{buttons.forEach(x=>x.classList.remove("selected"));button.classList.add("selected");const i=Number(button.dataset.rankIndex);const row=rows[i];if(row) renderPlayerIntel(row[0],definition.scoreLabel(row[0]),row[1]);};});

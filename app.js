@@ -4193,28 +4193,36 @@ function flaskScoreHtml(score, scoreLabel) {
     const value = Math.max(0, Math.min(100, numericOrNull(score) ?? 0));
     const tier = dnaTier(value);
     const label = String(scoreLabel || "Outlook Score").replace(/\s+Score$/i, "").toUpperCase();
+    const surfaceY = 100 - value;
+    const liquidHeight = value;
+    const clipId = `flaskClip-${String(value).replace(".","-")}-${Math.random().toString(36).slice(2,8)}`;
     const ticks = [100,90,80,70,60,50,40,30,20,10,0].map((tick) =>
         `<span class="flask-scale-tick" style="top:${100-tick}%"><i></i><b>${tick}</b></span>`
     ).join("");
-    const bubbles = [18,31,46,61,75].map((left,index) =>
-        `<i class="flask-bubble" style="left:${left}%;bottom:${18 + index*12}%;--bubble-delay:${index*0.11}s"></i>`
-    ).join("");
-    const overflow = tier.glow ? `
-        <div class="flask-overflow" aria-hidden="true"><i></i><i></i><i></i></div>` : "";
+    const overflow = tier.glow ? `<div class="flask-overflow" aria-hidden="true"><i></i><i></i><i></i></div>` : "";
 
     return `
         <div class="flask-score-visual ${tier.glow ? "flask-elite-glow" : ""}" style="--flask-score:${value};--flask-color:${tier.color}">
             ${overflow}
             <div class="flask-meter" aria-label="${round1(value)} out of 100 ${label.toLowerCase()} rating">
-                <svg class="flask-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                    <path d="M35 2 H65 M39 2 V18 L8 88 Q4 98 16 98 H84 Q96 98 92 88 L61 18 V2"></path>
+                <svg class="flask-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                    <defs>
+                        <clipPath id="${clipId}">
+                            <path d="M39 2 H61 V18 L92 88 Q96 98 84 98 H16 Q4 98 8 88 L39 18 Z"></path>
+                        </clipPath>
+                    </defs>
+                    <g clip-path="url(#${clipId})">
+                        <rect class="flask-liquid-svg" x="0" y="${surfaceY}" width="100" height="${liquidHeight}"></rect>
+                        <circle class="flask-bubble-svg b1" cx="29" cy="76" r="3"></circle>
+                        <circle class="flask-bubble-svg b2" cx="45" cy="66" r="3.2"></circle>
+                        <circle class="flask-bubble-svg b3" cx="60" cy="56" r="2.8"></circle>
+                        <circle class="flask-bubble-svg b4" cx="70" cy="46" r="2.6"></circle>
+                    </g>
+                    <path class="flask-vessel-path" d="M35 2 H65 M39 2 V18 L8 88 Q4 98 16 98 H84 Q96 98 92 88 L61 18 V2"></path>
+                    <line class="flask-surface-svg" x1="7" y1="${surfaceY}" x2="93" y2="${surfaceY}"></line>
                 </svg>
-                <div class="flask-liquid-clip">
-                    <div class="flask-liquid">${bubbles}</div>
-                </div>
-                <div class="flask-fill-line"></div>
                 <div class="flask-scale" aria-hidden="true">${ticks}</div>
-                <div class="flask-stop"><span>${round1(value)}</span></div>
+                <div class="flask-stop" style="top:${surfaceY}%"><span>${round1(value)}</span></div>
             </div>
             <div class="flask-caption"><strong>${label}</strong><span>${tier.label}</span></div>
         </div>

@@ -463,7 +463,7 @@ function playerVisualHtml(player, sizeClass = "") {
     const color=teamColor(player?.team);
     const sleeperId=String(player?.sleeperId ?? player?.id ?? "").trim();
     const headshotUrl=sleeperId
-        ? `https://sleepercdn.com/content/nfl/players/thumb/${encodeURIComponent(sleeperId)}.jpg`
+        ? `https://sleepercdn.com/content/nfl/players/${encodeURIComponent(sleeperId)}.jpg`
         : "";
 
     return `<div class="player-visual ${sizeClass}" style="--team-accent:${color}" aria-label="${player?.name||"Player"}">

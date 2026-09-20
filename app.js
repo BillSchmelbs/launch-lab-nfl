@@ -461,10 +461,18 @@ function teamColor(team) {
 function playerVisualHtml(player, sizeClass = "") {
     const initials=(player?.name||"?").split(" ").filter(Boolean).map(x=>x[0]).slice(0,2).join("");
     const color=teamColor(player?.team);
+    const sleeperId=String(player?.sleeperId ?? player?.id ?? "").trim();
+    const headshotUrl=sleeperId
+        ? `https://sleepercdn.com/content/nfl/players/thumb/${encodeURIComponent(sleeperId)}.jpg`
+        : "";
+
     return `<div class="player-visual ${sizeClass}" style="--team-accent:${color}" aria-label="${player?.name||"Player"}">
         <span class="player-visual-ring"></span>
-        <span class="player-visual-initials">${initials}</span>
-        <span class="player-visual-team">${player?.team||""}</span>
+        <span class="player-visual-fallback">
+            <span class="player-visual-initials">${initials}</span>
+            <span class="player-visual-team">${player?.team||""}</span>
+        </span>
+        ${headshotUrl ? `<img class="player-headshot" src="${headshotUrl}" alt="" loading="lazy" decoding="async" onload="this.closest('.player-visual')?.classList.add('has-headshot')" onerror="this.remove()">` : ""}
     </div>`;
 }
 
@@ -989,6 +997,12 @@ function normalizePublicPlayer(raw) {
     return {
 
         id:
+            raw.player_id,
+
+        // Sleeper is already Launch Lab's authoritative public player crosswalk.
+        // Keep the ID on the normalized player so the presentation layer can
+        // request a headshot without changing the model/public JSON contract.
+        sleeperId:
             raw.player_id,
 
         name:

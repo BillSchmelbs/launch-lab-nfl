@@ -1359,3 +1359,35 @@ select:focus,input:focus{outline:none!important;border-color:var(--ll-blue)!impo
 .rank-player-visual{width:42px;height:42px;border-radius:50%;font-size:.72rem}
 .intel-player-visual{width:76px;height:76px;border-radius:18px;font-size:1.2rem}
 @media(max-width:560px){.rank-player-visual{width:36px;height:36px}.intel-player-visual{width:58px;height:58px}}
+
+
+/* UI V2 — Weekly Board mission-control pass */
+.game-summary{position:relative;padding:18px 20px!important;background:linear-gradient(90deg,rgba(20,32,51,.92),rgba(10,18,31,.96))!important;cursor:pointer}
+.game-summary:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--ll-orange),var(--ll-blue));opacity:.78}
+.game-top{align-items:center!important;gap:18px}
+.matchup{font-size:1.18rem!important;font-weight:900!important;letter-spacing:-.025em!important}
+.game-meta{display:flex!important;gap:6px!important;flex-wrap:wrap!important;margin-top:8px!important}
+.game-meta .pill{font-size:.67rem!important;padding:5px 8px!important}
+.game-summary .score{font-size:1.28rem!important;text-align:right}
+.game-summary .score-grade-label{font-size:.58rem!important;letter-spacing:.11em!important}
+.expand{background:linear-gradient(180deg,rgba(7,11,20,.3),rgba(7,11,20,.68))!important}
+.teams{gap:12px!important;padding:12px!important}
+.team{background:rgba(14,22,36,.76)!important;border:1px solid var(--ll-line)!important;border-radius:14px!important;overflow:hidden}
+.team-head{background:linear-gradient(90deg,rgba(56,189,248,.045),transparent)!important;border-bottom:1px solid var(--ll-line)!important}
+.attack-grid{gap:7px!important}
+.attack,.attack-box{background:#09131f!important;border:1px solid var(--ll-line)!important;border-radius:9px!important}
+.posbtn{background:#0b1624!important;border:1px solid var(--ll-line)!important;border-radius:10px!important;transition:.18s ease!important}
+.posbtn:hover{border-color:rgba(56,189,248,.28)!important;background:#0d1b2b!important}
+.posbtn.is-open{border-color:rgba(255,107,44,.3)!important;box-shadow:inset 3px 0 0 var(--ll-orange)!important}
+.player-list{padding-top:8px!important}
+.player-card{position:relative;overflow:hidden;padding:14px!important}
+.player-card:before{content:"";position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,.18),transparent)}
+.player-card .score{font-variant-numeric:tabular-nums}
+.details,.advanced{background:#09131f!important;border:1px solid var(--ll-line)!important;border-radius:10px!important}
+@media(max-width:520px){
+ .game-summary{padding:15px!important}
+ .game-top{align-items:flex-start!important}
+ .matchup{font-size:1.05rem!important}
+ .game-meta .pill{font-size:.61rem!important}
+ .teams{padding:8px!important}
+}

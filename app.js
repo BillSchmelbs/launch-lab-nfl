@@ -4189,42 +4189,36 @@ function dnaTier(score) {
 }
 
 
-function dnaScoreHtml(score, scoreLabel) {
+function flaskScoreHtml(score, scoreLabel) {
     const value = Math.max(0, Math.min(100, numericOrNull(score) ?? 0));
     const tier = dnaTier(value);
     const label = String(scoreLabel || "Outlook Score").replace(/\s+Score$/i, "").toUpperCase();
-
-    const rungYs = [8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96];
-    const rungs = rungYs.map((y) => {
-        const radians = ((y - 4) / 92) * Math.PI * 4;
-        const spread = 18 * Math.cos(radians);
-        const x1 = 50 - spread;
-        const x2 = 50 + spread;
-        return `<line x1="${x1.toFixed(1)}" y1="${y}" x2="${x2.toFixed(1)}" y2="${y}"></line>`;
-    }).join("");
-
-    const helix = `
-        <path d="M32 4 C68 11 68 20 32 27 C-4 34 -4 43 32 50 C68 57 68 66 32 73 C-4 80 -4 89 32 96"></path>
-        <path d="M68 4 C32 11 32 20 68 27 C104 34 104 43 68 50 C32 57 32 66 68 73 C104 80 104 89 68 96"></path>
-        <g class="dna-rungs">${rungs}</g>
-    `;
-
-    const ticks = [100,90,80,70,60,50,40,30,20,10,0].map((tick) => {
-        const top = 100 - tick;
-        return `<span class="dna-scale-tick" style="top:${top}%"><i></i><b>${tick}</b></span>`;
-    }).join("");
+    const ticks = [100,90,80,70,60,50,40,30,20,10,0].map((tick) =>
+        `<span class="flask-scale-tick" style="top:${100-tick}%"><i></i><b>${tick}</b></span>`
+    ).join("");
+    const bubbles = [18,31,46,61,75].map((left,index) =>
+        `<i class="flask-bubble" style="left:${left}%;bottom:${18 + index*12}%;--bubble-delay:${index*0.11}s"></i>`
+    ).join("");
+    const overflow = tier.glow ? `
+        <div class="flask-overflow" aria-hidden="true">
+            <i></i><i></i><i></i>
+        </div>` : "";
 
     return `
-        <div class="dna-score-visual ${tier.glow ? "dna-elite-glow" : ""}" style="--dna-score:${value};--dna-color:${tier.color}">
-            <div class="dna-meter" aria-label="${round1(value)} out of 100 ${label.toLowerCase()} rating">
-                <svg class="dna-svg dna-base" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${helix}</svg>
-                <div class="dna-fill">
-                    <svg class="dna-svg dna-active" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${helix}</svg>
+        <div class="flask-score-visual ${tier.glow ? "flask-elite-glow" : ""}" style="--flask-score:${value};--flask-color:${tier.color}">
+            ${overflow}
+            <div class="flask-meter" aria-label="${round1(value)} out of 100 ${label.toLowerCase()} rating">
+                <svg class="flask-outline" viewBox="0 0 120 150" aria-hidden="true">
+                    <path d="M43 8 H77 M48 8 V45 L17 119 Q11 136 29 140 H91 Q109 136 103 119 L72 45 V8"></path>
+                </svg>
+                <div class="flask-liquid-clip">
+                    <div class="flask-liquid">${bubbles}</div>
                 </div>
-                <div class="dna-scale" aria-hidden="true">${ticks}</div>
-                <div class="dna-stop"><span>${round1(value)}</span></div>
+                <div class="flask-fill-line"></div>
+                <div class="flask-scale" aria-hidden="true">${ticks}</div>
+                <div class="flask-stop"><span>${round1(value)}</span></div>
             </div>
-            <div class="dna-caption">
+            <div class="flask-caption">
                 <strong>${label}</strong>
                 <span>${tier.label}</span>
             </div>
@@ -4243,7 +4237,7 @@ function renderPlayerIntel(player, scoreLabel, scoreValue) {
         return `<div class="intel-metric"><div class="intel-metric-head"><span>${label}</span><strong class="${gclass(grade(n))}">${n===null?"—":round1(n)}</strong></div><div class="intel-track"><span style="width:${width}%"></span></div></div>`;
     }).join("");
     const signal = player.bestProp ? `<div class="launch-signal"><div class="launch-signal-icon">🚀</div><div><span>LAUNCH SIGNAL</span><strong>${player.bestProp}</strong><p>${round1(player.bestPropScore)} prop-environment rating</p></div></div>` : `<div class="launch-signal muted-signal"><div class="launch-signal-icon">◎</div><div><span>LAUNCH SIGNAL</span><strong>Player Outlook</strong><p>${round1(player.outlook)} overall weekly rating</p></div></div>`;
-    panel.innerHTML = `<div class="intel-hero">${playerVisualHtml(player,"intel-player-visual")}<div class="intel-title"><div class="eyebrow">${player.team} · ${player.position}${player.role?" · "+player.role:""}</div><h3>${player.name}</h3><p>vs ${player.opponent}${player.homeAway?" · "+player.homeAway:""}</p><div class="intel-score-inline"><span>${scoreLabel||"Outlook Score"}</span><strong style="color:${activeTier.color}">${round1(activeScore)}</strong><small>${activeTier.label}</small></div></div>${dnaScoreHtml(activeScore, scoreLabel)}</div><div class="intel-section-title">MODEL INSTRUMENTS</div><div class="intel-metrics">${metricHtml}</div><div class="intel-chips">${player.confidenceBadge?`<span>${player.confidenceBadge}</span>`:""}${player.rosterStatus?`<span>${player.rosterStatus}</span>`:""}${player.gameTotal?`<span>O/U ${round1(player.gameTotal)}</span>`:""}</div>${signal}`;
+    panel.innerHTML = `<div class="intel-hero">${playerVisualHtml(player,"intel-player-visual")}<div class="intel-title"><div class="eyebrow">${player.team} · ${player.position}${player.role?" · "+player.role:""}</div><h3>${player.name}</h3><p>vs ${player.opponent}${player.homeAway?" · "+player.homeAway:""}</p><div class="intel-score-inline"><span>${scoreLabel||"Outlook Score"}</span><strong style="color:${activeTier.color}">${round1(activeScore)}</strong><small>${activeTier.label}</small></div></div>${flaskScoreHtml(activeScore, scoreLabel)}</div><div class="intel-section-title">MODEL INSTRUMENTS</div><div class="intel-metrics">${metricHtml}</div><div class="intel-chips">${player.confidenceBadge?`<span>${player.confidenceBadge}</span>`:""}${player.rosterStatus?`<span>${player.rosterStatus}</span>`:""}${player.gameTotal?`<span>O/U ${round1(player.gameTotal)}</span>`:""}</div>${signal}`;
 }
 
 function rankingPropSignal(player, key) {

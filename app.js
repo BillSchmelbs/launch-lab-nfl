@@ -4305,13 +4305,55 @@ function renderRankings(key) {
         const propSignalHtml=propSignal
             ? `<div class="rank-prop-signal"><span>TOP PROP</span> · ${propSignal.label.toUpperCase()}</div>`
             : "";
-        return `<button class="rank-row rank-row-v2" type="button" data-rank-index="${index}"><div class="rank-num">${index+1}</div>${playerVisualHtml(player,"rank-player-visual")}<div class="rank-player"><strong>${player.name}</strong><div class="player-sub">${player.team} ${player.position} · vs ${player.opponent}</div>${propSignalHtml}</div><div class="rank-score-wrap"><div class="score small ${gclass(grade(score))}">${round1(score)}</div><span>${scoreLabel}</span></div></button>`;
+        return `<div class="rank-mobile-item"><button class="rank-row rank-row-v2" type="button" data-rank-index="${index}" aria-expanded="false"><div class="rank-num">${index+1}</div>${playerVisualHtml(player,"rank-player-visual")}<div class="rank-player"><strong>${player.name}</strong><div class="player-sub">${player.team} ${player.position} · vs ${player.opponent}</div>${propSignalHtml}</div><div class="rank-score-wrap"><div class="score small ${gclass(grade(score))}">${round1(score)}</div><span>${scoreLabel}</span></div></button><div class="rank-mobile-intel" data-mobile-intel="${index}"></div></div>`;
     }).join("");
     const buttons=$$(".rank-row-v2");
-    buttons.forEach(button=>{button.onclick=()=>{buttons.forEach(x=>x.classList.remove("selected"));button.classList.add("selected");const i=Number(button.dataset.rankIndex);const row=rows[i];if(row) renderPlayerIntel(row[0],definition.scoreLabel(row[0]),row[1]);};});
+    buttons.forEach(button=>{button.onclick=()=>{
+        const i=Number(button.dataset.rankIndex);
+        const row=rows[i];
+        if(!row) return;
+
+        const mobile=window.matchMedia("(max-width: 980px)").matches;
+
+        if(mobile){
+            const wasOpen=button.classList.contains("selected");
+            buttons.forEach(x=>{
+                x.classList.remove("selected");
+                x.setAttribute("aria-expanded","false");
+            });
+            $(".rank-mobile-intel").forEach(panel=>{
+                panel.innerHTML="";
+                panel.classList.remove("open");
+            });
+
+            if(wasOpen) return;
+
+            button.classList.add("selected");
+            button.setAttribute("aria-expanded","true");
+            const panel=button.closest(".rank-mobile-item")?.querySelector(".rank-mobile-intel");
+            const desktopPanel=$("#playerIntel");
+
+            if(panel && desktopPanel){
+                renderPlayerIntel(row[0],definition.scoreLabel(row[0]),row[1]);
+                panel.innerHTML=desktopPanel.innerHTML;
+                panel.classList.add("open");
+            }
+            return;
+        }
+
+        buttons.forEach(x=>x.classList.remove("selected"));
+        button.classList.add("selected");
+        renderPlayerIntel(row[0],definition.scoreLabel(row[0]),row[1]);
+    };});
     if(rows.length){
-        buttons[0]?.classList.add("selected");
-        renderPlayerIntel(rows[0][0],definition.scoreLabel(rows[0][0]),rows[0][1]);
+        if(!window.matchMedia("(max-width: 980px)").matches){
+            buttons[0]?.classList.add("selected");
+            buttons[0]?.setAttribute("aria-expanded","true");
+            renderPlayerIntel(rows[0][0],definition.scoreLabel(rows[0][0]),rows[0][1]);
+        } else {
+            const panel=$("#playerIntel");
+            if(panel) panel.innerHTML="";
+        }
     } else {
         const panel=$("#playerIntel");
         if(panel){

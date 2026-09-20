@@ -1391,3 +1391,59 @@ select:focus,input:focus{outline:none!important;border-color:var(--ll-blue)!impo
  .game-meta .pill{font-size:.61rem!important}
  .teams{padding:8px!important}
 }
+
+
+/* UI V2 — Mobile-first field pass */
+@media(max-width:760px){
+  main{padding-left:10px!important;padding-right:10px!important}
+  .topbar{position:sticky!important;top:0!important;z-index:100!important;padding:9px 10px!important;background:rgba(7,11,20,.95)!important}
+  .brand img{width:142px!important}
+  .topbar nav{width:auto!important;max-width:calc(100vw - 165px)!important;display:flex!important;gap:3px!important;overflow-x:auto!important;scrollbar-width:none}
+  .topbar nav::-webkit-scrollbar{display:none}
+  .navbtn{padding:8px 9px!important;font-size:.68rem!important}
+  .hero{margin-top:10px!important;padding:22px 16px!important}
+  .hero h1{font-size:clamp(2.25rem,12vw,3.45rem)!important;max-width:12ch}
+  .hero p{font-size:.88rem!important;line-height:1.55!important}
+  .weekbox{width:100%!important;padding:12px!important}
+  .weekbox select,.guide-open-btn{min-height:42px}
+  .quick-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+  .quick-card{padding:11px 10px!important;min-width:0}
+  .quick-card span{font-size:.54rem!important;letter-spacing:.06em!important}
+  .quick-card strong{font-size:.76rem!important;line-height:1.2!important;overflow-wrap:anywhere}
+  .section-head{display:block!important}
+  .section-head h2{font-size:1.65rem!important}
+  .filters{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;width:100%!important;margin-top:12px!important}
+  .filters input{grid-column:1/-1}
+  .filters input,.filters select{min-height:42px!important;font-size:16px!important}
+  .game-card{border-radius:14px!important}
+  .game-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important}
+  .game-summary .score{font-size:1.08rem!important}
+  .game-meta{gap:4px!important}
+  .game-meta .pill{padding:4px 6px!important}
+  .attack-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .attack,.attack-box{padding:7px 4px!important;min-width:0}
+  .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .prop-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .ranking-tabs{margin-left:-10px;margin-right:-10px;padding-left:10px!important;padding-right:10px!important;scroll-snap-type:x proximity}
+  .ranking-tabs button{scroll-snap-align:start}
+  .rankings-workspace{gap:10px}
+  .rank-row-v2{min-height:62px}
+  .player-intel{padding:15px!important;border-radius:14px!important}
+  .intel-title h3{font-size:1.45rem!important}
+  .intel-metrics{gap:10px}
+  .launch-signal{padding:13px!important}
+  .guide-modal-panel{width:100%!important;max-height:92dvh!important}
+}
+@media(max-width:390px){
+  .brand img{width:124px!important}
+  .topbar nav{max-width:calc(100vw - 145px)!important}
+  .navbtn{font-size:.62rem!important;padding:7px!important}
+  .quick-grid{grid-template-columns:1fr!important}
+  .quick-card{display:grid;grid-template-columns:1fr auto;align-items:center}
+  .quick-card:before{width:2px}
+  .hero h1{font-size:2.35rem!important}
+  .game-top{grid-template-columns:1fr!important}
+  .game-summary .score{text-align:left!important;margin-top:8px}
+  .filters{grid-template-columns:1fr!important}
+  .filters input{grid-column:auto}
+}

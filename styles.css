@@ -1527,3 +1527,43 @@ select:focus,input:focus{outline:none!important;border-color:var(--ll-blue)!impo
         letter-spacing:.025em;
     }
 }
+
+
+/* UI V2 — Mobile inline Player Intelligence */
+.rank-mobile-item{
+    min-width:0;
+}
+.rank-mobile-intel{
+    display:none;
+}
+@media(max-width:980px){
+    .rank-mobile-intel.open{
+        display:block;
+        margin:8px 0 14px;
+        padding:15px;
+        border:1px solid rgba(56,189,248,.17);
+        border-radius:14px;
+        background:linear-gradient(145deg,rgba(14,22,36,.98),rgba(8,15,26,.98));
+        box-shadow:0 16px 36px rgba(0,0,0,.20),var(--ll-glow);
+    }
+    .rank-mobile-intel .intel-hero{
+        grid-template-columns:58px minmax(0,1fr);
+    }
+    .rank-mobile-intel .intel-player-visual{
+        width:58px;
+        height:58px;
+    }
+    .rank-mobile-intel .intel-score{
+        grid-column:1/-1;
+        display:flex;
+        align-items:baseline;
+        gap:8px;
+        text-align:left;
+    }
+    .rank-mobile-intel .intel-score strong{
+        font-size:1.8rem;
+    }
+    #playerIntel{
+        display:none;
+    }
+}

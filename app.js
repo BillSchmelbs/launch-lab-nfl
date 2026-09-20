@@ -337,12 +337,24 @@ function getTeamImpliedTotal(
 
 function grade(score) {
 
+    if (
+        score === null
+        ||
+        score === undefined
+        ||
+        score === ""
+    ) {
+
+        return "N/A";
+    }
+
+
     const s =
         Number(score);
 
 
     if (
-        Number.isNaN(s)
+        !Number.isFinite(s)
     ) {
 
         return "N/A";
@@ -373,6 +385,17 @@ function gclass(value = "") {
     const g =
         String(value)
         .toLowerCase();
+
+
+    if (
+        !g
+        ||
+        g === "n/a"
+        ||
+        g === "na"
+    ) {
+        return "g-neutral";
+    }
 
 
     if (g.includes("elite")) {
@@ -421,6 +444,29 @@ function byId(id) {
     );
 }
 
+
+
+const TEAM_COLORS = {
+    ARI:"#97233F",ATL:"#A71930",BAL:"#241773",BUF:"#00338D",CAR:"#0085CA",CHI:"#0B162A",CIN:"#FB4F14",CLE:"#311D00",
+    DAL:"#003594",DEN:"#FB4F14",DET:"#0076B6",GB:"#203731",HOU:"#03202F",IND:"#002C5F",JAX:"#006778",KC:"#E31837",
+    LV:"#A5ACAF",LAC:"#0080C6",LA:"#003594",LAR:"#003594",MIA:"#008E97",MIN:"#4F2683",NE:"#002244",NO:"#D3BC8D",
+    NYG:"#0B2265",NYJ:"#125740",PHI:"#004C54",PIT:"#FFB612",SEA:"#002244",SF:"#AA0000",TB:"#D50A0A",TEN:"#0C2340",
+    WAS:"#5A1414"
+};
+
+function teamColor(team) {
+    return TEAM_COLORS[String(team || "").toUpperCase()] || "#38BDF8";
+}
+
+function playerVisualHtml(player, sizeClass = "") {
+    const initials=(player?.name||"?").split(" ").filter(Boolean).map(x=>x[0]).slice(0,2).join("");
+    const color=teamColor(player?.team);
+    return `<div class="player-visual ${sizeClass}" style="--team-accent:${color}" aria-label="${player?.name||"Player"}">
+        <span class="player-visual-ring"></span>
+        <span class="player-visual-initials">${initials}</span>
+        <span class="player-visual-team">${player?.team||""}</span>
+    </div>`;
+}
 
 // ============================================================
 // PROP HELPERS
@@ -4030,225 +4076,47 @@ function buildRankDefinitions() {
 // RANKINGS DISPLAY
 // ============================================================
 
-function renderRankings(key) {
-
-    const tabs =
-        $("#rankingTabs");
-
-
-    if (
-        !tabs
-    ) {
-
-        return;
-    }
-
-
-    const rankDefs =
-        buildRankDefinitions();
-
-
-    if (
-        !rankDefs[key]
-    ) {
-
-        key =
-            "outlook";
-    }
-
-
-    tabs.innerHTML =
-        Object.entries(
-            rankDefs
-        )
-
-        .map(
-            ([rankKey, definition]) => `
-
-                <button
-                    data-rank="${rankKey}"
-                    class="${
-                        rankKey
-                        ===
-                        key
-                            ?
-                            "active"
-                            :
-                            ""
-                    }"
-                >
-                    ${definition.title}
-                </button>
-            `
-        )
-
-        .join("");
-
-
-    tabs
-    .querySelectorAll(
-        "button"
-    )
-
-    .forEach(
-        button => {
-
-            button.onclick =
-                () => {
-
-                    renderRankings(
-                        button.dataset.rank
-                    );
-                };
-        }
-    );
-
-
-    const definition =
-        rankDefs[key];
-
-
-    const rows =
-        PLAYERS
-
-        .filter(
-            player =>
-                (
-                    DATA_MODE
-                    ===
-                    "LEGACY_2025"
-                )
-                ||
-                player.headlineEligible
-        )
-
-        .map(
-            player => [
-
-                player,
-
-                Number(
-                    definition.score(
-                        player
-                    )
-                )
-            ]
-        )
-
-        .filter(
-            row =>
-                Number.isFinite(
-                    row[1]
-                )
-                &&
-                row[1] > 0
-        )
-
-        .sort(
-            (a, b) =>
-                b[1]
-                -
-                a[1]
-        )
-
-        .slice(
-            0,
-            50
-        );
-
-
-    $("#rankingsList").innerHTML =
-        rows
-
-        .map(
-            (
-                [
-                    player,
-                    score
-                ],
-                index
-            ) => {
-
-                const scoreLabel =
-                    definition.scoreLabel(
-                        player
-                    );
-
-
-                return `
-
-                <div class="rank-row">
-
-                    <div class="rank-num">
-                        ${index + 1}
-                    </div>
-
-
-                    <div>
-
-                        <strong>
-                            ${player.name}
-                        </strong>
-
-                        <div class="player-sub">
-
-                            ${player.team}
-                            ${player.position}
-                            · vs ${player.opponent}
-
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        class="
-                            score
-                            small
-                            ${
-                                gclass(
-                                    grade(
-                                        score
-                                    )
-                                )
-                            }
-                        "
-                    >
-                        ${round1(
-                            score
-                        )}
-                    </div>
-
-
-                    <div class="hide-mobile">
-
-                        ${scoreLabel}
-
-                    </div>
-
-
-                    <div
-                        class="
-                            hide-mobile
-                            player-sub
-                        "
-                    >
-
-                        Outlook
-                        ${round1(
-                            player.outlook
-                        )}
-
-                    </div>
-
-                </div>
-                `;
-            }
-        )
-
-        .join("");
+function renderPlayerIntel(player, scoreLabel, scoreValue) {
+    const panel = $("#playerIntel");
+    if (!panel || !player) return;
+    const activeScore = numericOrNull(scoreValue) ?? numericOrNull(player.outlook);
+    const metrics = [["Matchup",player.matchup],["Opportunity",player.opportunity],["Quality",player.quality],["Game Environment",player.gameEnvironment]];
+    const metricHtml = metrics.map(([label,value]) => {
+        const n = numericOrNull(value);
+        const width = n === null ? 0 : Math.max(0,Math.min(100,n));
+        return `<div class="intel-metric"><div class="intel-metric-head"><span>${label}</span><strong class="${gclass(grade(n))}">${n===null?"—":round1(n)}</strong></div><div class="intel-track"><span style="width:${width}%"></span></div></div>`;
+    }).join("");
+    const initials=(player.name||"?").split(" ").map(x=>x[0]).slice(0,2).join("");
+    const signal = player.bestProp ? `<div class="launch-signal"><div class="launch-signal-icon">🚀</div><div><span>LAUNCH SIGNAL</span><strong>${player.bestProp}</strong><p>${round1(player.bestPropScore)} prop-environment rating</p></div></div>` : `<div class="launch-signal muted-signal"><div class="launch-signal-icon">◎</div><div><span>LAUNCH SIGNAL</span><strong>Player Outlook</strong><p>${round1(player.outlook)} overall weekly rating</p></div></div>`;
+    panel.innerHTML = `<div class="intel-hero">${playerVisualHtml(player,"intel-player-visual")}<div class="intel-title"><div class="eyebrow">${player.team} · ${player.position}${player.role?" · "+player.role:""}</div><h3>${player.name}</h3><p>vs ${player.opponent}${player.homeAway?" · "+player.homeAway:""}</p></div><div class="intel-score"><span>${scoreLabel||"Outlook Score"}</span><strong class="${gclass(grade(activeScore))}">${round1(activeScore)}</strong><small>${grade(activeScore)}</small></div></div><div class="intel-section-title">MODEL INSTRUMENTS</div><div class="intel-metrics">${metricHtml}</div><div class="intel-chips">${player.confidenceBadge?`<span>${player.confidenceBadge}</span>`:""}${player.rosterStatus?`<span>${player.rosterStatus}</span>`:""}${player.gameTotal?`<span>O/U ${round1(player.gameTotal)}</span>`:""}</div>${signal}`;
 }
 
+function renderRankings(key) {
+    const tabs=$("#rankingTabs");
+    if(!tabs) return;
+    const rankDefs=buildRankDefinitions();
+    if(!rankDefs[key]) key="outlook";
+    tabs.innerHTML=Object.entries(rankDefs).map(([rankKey,definition])=>`<button data-rank="${rankKey}" class="${rankKey===key?"active":""}">${definition.title}</button>`).join("");
+    tabs.querySelectorAll("button").forEach(button=>{button.onclick=()=>renderRankings(button.dataset.rank);});
+    const definition=rankDefs[key];
+    const rows=PLAYERS.filter(player=>DATA_MODE==="LEGACY_2025"||player.headlineEligible).map(player=>[player,Number(definition.score(player))]).filter(row=>Number.isFinite(row[1])&&row[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,50);
+    $("#rankingsList").innerHTML=rows.map(([player,score],index)=>{
+        const scoreLabel=definition.scoreLabel(player);
+        const initials=(player.name||"?").split(" ").map(x=>x[0]).slice(0,2).join("");
+        return `<button class="rank-row rank-row-v2" type="button" data-rank-index="${index}"><div class="rank-num">${index+1}</div>${playerVisualHtml(player,"rank-player-visual")}<div class="rank-player"><strong>${player.name}</strong><div class="player-sub">${player.team} ${player.position} · vs ${player.opponent}</div></div><div class="rank-score-wrap"><div class="score small ${gclass(grade(score))}">${round1(score)}</div><span>${scoreLabel}</span></div></button>`;
+    }).join("");
+    const buttons=$$(".rank-row-v2");
+    buttons.forEach(button=>{button.onclick=()=>{buttons.forEach(x=>x.classList.remove("selected"));button.classList.add("selected");const i=Number(button.dataset.rankIndex);const row=rows[i];if(row) renderPlayerIntel(row[0],definition.scoreLabel(row[0]),row[1]);};});
+    if(rows.length){
+        buttons[0]?.classList.add("selected");
+        renderPlayerIntel(rows[0][0],definition.scoreLabel(rows[0][0]),rows[0][1]);
+    } else {
+        const panel=$("#playerIntel");
+        if(panel){
+            panel.innerHTML='<div class="intel-empty"><div class="intel-orbit">◎</div><div class="eyebrow">PLAYER INTELLIGENCE</div><h3>No eligible players</h3><p>No players have a qualifying score for this ranking in the selected week.</p></div>';
+        }
+    }
+}
 
 // ============================================================
 // PERFORMANCE TAB

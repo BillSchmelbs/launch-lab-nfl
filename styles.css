@@ -1567,3 +1567,38 @@ select:focus,input:focus{outline:none!important;border-color:var(--ll-blue)!impo
         display:none;
     }
 }
+
+
+/* === LAUNCH LAB DNA SCORE VISUAL ===
+   Ranking-context score instrument. Fill percentage is the score itself.
+   Color tiers: 95+ bright green glow; 90-94.9 green; 76.3-89.9 blue;
+   58-76.2 yellow; 32.4-57.9 orange; below 32.4 red. */
+.intel-hero{grid-template-columns:76px minmax(0,1fr) 154px;align-items:center}
+.intel-score-inline{display:flex;align-items:baseline;gap:8px;margin-top:20px;white-space:nowrap}
+.intel-score-inline span,.intel-score-inline small{color:var(--ll-muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}
+.intel-score-inline strong{font-size:2.25rem;line-height:1}
+.dna-score-visual{width:154px;display:grid;justify-items:center;align-self:stretch;min-height:188px}
+.dna-meter{position:relative;width:112px;height:154px;filter:drop-shadow(0 0 7px color-mix(in srgb,var(--dna-color) 24%,transparent))}
+.dna-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dna-svg path,.dna-svg line{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.dna-base path{stroke:#23364a;stroke-width:4}.dna-base line{stroke:#1a2a3a;stroke-width:2.3}
+.dna-fill{position:absolute;inset:0;clip-path:inset(calc((100 - var(--dna-score)) * 1%) 0 0 0);animation:dnaRise .68s cubic-bezier(.22,.8,.28,1) both}
+.dna-active path{stroke:var(--dna-color);stroke-width:4.4}.dna-active line{stroke:var(--dna-color);stroke-width:2.5;opacity:.88}
+.dna-stop{position:absolute;left:50%;top:calc((100 - var(--dna-score)) * 1%);width:72px;border-top:2px solid var(--dna-color);transform:translate(10px,-1px);color:var(--dna-color);filter:drop-shadow(0 0 4px color-mix(in srgb,var(--dna-color) 35%,transparent))}
+.dna-stop span{position:absolute;left:38px;top:-13px;padding:2px 5px;border:1px solid color-mix(in srgb,var(--dna-color) 65%,transparent);border-radius:6px;background:#07101a;color:var(--dna-color);font-size:.62rem;font-weight:900;line-height:1.2}
+.dna-caption{margin-top:1px;text-align:center;line-height:1.25}.dna-caption strong{display:block;color:var(--ll-muted);font-size:.58rem;letter-spacing:.12em}.dna-caption span{display:block;margin-top:3px;color:var(--dna-color);font-size:.62rem;font-weight:900;letter-spacing:.12em}
+.dna-elite-glow .dna-meter{filter:drop-shadow(0 0 5px var(--dna-color)) drop-shadow(0 0 15px color-mix(in srgb,var(--dna-color) 70%,transparent)) drop-shadow(0 0 28px color-mix(in srgb,var(--dna-color) 34%,transparent))}
+.dna-elite-glow .dna-active path,.dna-elite-glow .dna-active line{stroke-width:5}
+@keyframes dnaRise{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(calc((100 - var(--dna-score)) * 1%) 0 0 0)}}
+@media(prefers-reduced-motion:reduce){.dna-fill{animation:none}}
+@media(max-width:980px){
+.rank-mobile-intel .intel-hero{grid-template-columns:58px minmax(0,1fr) 126px;min-height:184px}
+.rank-mobile-intel .intel-title{align-self:start;padding-top:4px}.rank-mobile-intel .intel-score-inline{margin-top:18px}.rank-mobile-intel .intel-score-inline strong{font-size:1.85rem}
+.rank-mobile-intel .dna-score-visual{width:126px;min-height:174px}.rank-mobile-intel .dna-meter{width:94px;height:142px}}
+@media(max-width:560px){
+.rank-mobile-intel .intel-hero{grid-template-columns:58px minmax(0,1fr) 112px!important;gap:10px}.rank-mobile-intel .intel-player-visual{align-self:start}
+.rank-mobile-intel .intel-title h3{font-size:1.32rem!important}.rank-mobile-intel .intel-title p{font-size:.78rem}
+.rank-mobile-intel .intel-score-inline{display:grid;grid-template-columns:auto auto;justify-content:start;gap:3px 7px;margin-top:16px}.rank-mobile-intel .intel-score-inline span{grid-column:1/-1}.rank-mobile-intel .intel-score-inline strong{font-size:1.7rem}
+.rank-mobile-intel .dna-score-visual{width:112px;min-height:166px}.rank-mobile-intel .dna-meter{width:84px;height:136px}.rank-mobile-intel .dna-stop{width:50px;transform:translate(8px,-1px)}.rank-mobile-intel .dna-stop span{left:23px;font-size:.56rem}}
+@media(max-width:390px){
+.rank-mobile-intel .intel-hero{grid-template-columns:52px minmax(0,1fr) 96px!important;gap:8px}.rank-mobile-intel .intel-player-visual{width:52px;height:52px}.rank-mobile-intel .dna-score-visual{width:96px}.rank-mobile-intel .dna-meter{width:74px;height:128px}.rank-mobile-intel .intel-score-inline strong{font-size:1.55rem}}

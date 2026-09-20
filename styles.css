@@ -1627,3 +1627,31 @@ select:focus,input:focus{outline:none!important;border-color:var(--ll-blue)!impo
 .rank-mobile-intel .flask-scale{left:91px;width:36px}.rank-mobile-intel .flask-scale-tick b{font-size:.49rem}.rank-mobile-intel .flask-stop{left:75px;width:16px}.rank-mobile-intel .flask-stop span{left:17px;min-width:36px;font-size:.52rem}
 .rank-mobile-intel .intel-score-inline strong{font-size:1.48rem}.rank-mobile-intel .flask-overflow{right:42px;transform:scale(.8)}
 }
+
+
+/* Flask polish: keep liquid visually inside the vessel while preserving
+   a score surface that is mathematically aligned with the external marker. */
+.flask-liquid-clip{
+    left:8px;
+    width:112px;
+    clip-path:polygon(35% 2%,65% 2%,65% 18%,91% 87%,96% 96%,93% 99%,84% 100%,16% 100%,7% 99%,4% 96%,9% 87%,35% 18%);
+}
+.flask-liquid{
+    background:linear-gradient(180deg,color-mix(in srgb,var(--flask-color) 72%,white 14%),var(--flask-color));
+}
+.flask-fill-line{
+    left:10px;
+    width:110px;
+}
+@media(max-width:980px){
+    .rank-mobile-intel .flask-liquid-clip{left:7px;width:97px}
+    .rank-mobile-intel .flask-fill-line{left:8px;width:97px}
+}
+@media(max-width:560px){
+    .rank-mobile-intel .flask-liquid-clip{left:6px;width:84px}
+    .rank-mobile-intel .flask-fill-line{left:7px;width:84px}
+}
+@media(max-width:390px){
+    .rank-mobile-intel .flask-liquid-clip{left:6px;width:73px}
+    .rank-mobile-intel .flask-fill-line{left:7px;width:73px}
+}

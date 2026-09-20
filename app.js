@@ -4167,19 +4167,83 @@ function buildRankDefinitions() {
 // RANKINGS DISPLAY
 // ============================================================
 
+function dnaTier(score) {
+    const n = Math.max(0, Math.min(100, numericOrNull(score) ?? 0));
+
+    if (n >= 95) {
+        return { key: "elite", label: "ELITE", color: "#35ff8a", glow: true };
+    }
+    if (n >= 90) {
+        return { key: "great", label: "GREAT", color: "#32D583", glow: false };
+    }
+    if (n >= 76.3) {
+        return { key: "good", label: "GOOD", color: "#0A84FF", glow: false };
+    }
+    if (n >= 58) {
+        return { key: "neutral", label: "NEUTRAL", color: "#F5C84C", glow: false };
+    }
+    if (n >= 32.4) {
+        return { key: "below", label: "BELOW AVG", color: "#FF7A2F", glow: false };
+    }
+    return { key: "poor", label: "POOR", color: "#FF453A", glow: false };
+}
+
+
+function dnaScoreHtml(score, scoreLabel) {
+    const value = Math.max(0, Math.min(100, numericOrNull(score) ?? 0));
+    const tier = dnaTier(value);
+    const label = String(scoreLabel || "Outlook Score").replace(/\s+Score$/i, "").toUpperCase();
+    const turns = 8;
+    const rungs = Array.from({ length: turns + 1 }, (_, index) => {
+        const y = 8 + index * (84 / turns);
+        const phase = index * Math.PI / 2;
+        const spread = 18 * Math.sin(phase);
+        const x1 = 50 - spread;
+        const x2 = 50 + spread;
+        return `<line x1="${x1.toFixed(1)}" y1="${y.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y.toFixed(1)}"></line>`;
+    }).join("");
+
+    return `
+        <div class="dna-score-visual ${tier.glow ? "dna-elite-glow" : ""}" style="--dna-score:${value};--dna-color:${tier.color}">
+            <div class="dna-meter" aria-label="${round1(value)} out of 100 ${label.toLowerCase()} rating">
+                <svg class="dna-svg dna-base" viewBox="0 0 100 100" aria-hidden="true">
+                    <path d="M30 4 C78 20 78 34 30 50 C-18 66 -18 80 30 96"></path>
+                    <path d="M70 4 C22 20 22 34 70 50 C118 66 118 80 70 96"></path>
+                    <g>${rungs}</g>
+                </svg>
+                <div class="dna-fill">
+                    <svg class="dna-svg dna-active" viewBox="0 0 100 100" aria-hidden="true">
+                        <path d="M30 4 C78 20 78 34 30 50 C-18 66 -18 80 30 96"></path>
+                        <path d="M70 4 C22 20 22 34 70 50 C118 66 118 80 70 96"></path>
+                        <g>${rungs}</g>
+                    </svg>
+                </div>
+                <div class="dna-stop">
+                    <span>${round1(value)}</span>
+                </div>
+            </div>
+            <div class="dna-caption">
+                <strong>${label}</strong>
+                <span>${tier.label}</span>
+            </div>
+        </div>
+    `;
+}
+
+
 function renderPlayerIntel(player, scoreLabel, scoreValue) {
     const panel = $("#playerIntel");
     if (!panel || !player) return;
     const activeScore = numericOrNull(scoreValue) ?? numericOrNull(player.outlook);
+    const activeTier = dnaTier(activeScore);
     const metrics = [["Matchup",player.matchup],["Opportunity",player.opportunity],["Quality",player.quality],["Game Environment",player.gameEnvironment]];
     const metricHtml = metrics.map(([label,value]) => {
         const n = numericOrNull(value);
         const width = n === null ? 0 : Math.max(0,Math.min(100,n));
         return `<div class="intel-metric"><div class="intel-metric-head"><span>${label}</span><strong class="${gclass(grade(n))}">${n===null?"—":round1(n)}</strong></div><div class="intel-track"><span style="width:${width}%"></span></div></div>`;
     }).join("");
-    const initials=(player.name||"?").split(" ").map(x=>x[0]).slice(0,2).join("");
     const signal = player.bestProp ? `<div class="launch-signal"><div class="launch-signal-icon">🚀</div><div><span>LAUNCH SIGNAL</span><strong>${player.bestProp}</strong><p>${round1(player.bestPropScore)} prop-environment rating</p></div></div>` : `<div class="launch-signal muted-signal"><div class="launch-signal-icon">◎</div><div><span>LAUNCH SIGNAL</span><strong>Player Outlook</strong><p>${round1(player.outlook)} overall weekly rating</p></div></div>`;
-    panel.innerHTML = `<div class="intel-hero">${playerVisualHtml(player,"intel-player-visual")}<div class="intel-title"><div class="eyebrow">${player.team} · ${player.position}${player.role?" · "+player.role:""}</div><h3>${player.name}</h3><p>vs ${player.opponent}${player.homeAway?" · "+player.homeAway:""}</p></div><div class="intel-score"><span>${scoreLabel||"Outlook Score"}</span><strong class="${gclass(grade(activeScore))}">${round1(activeScore)}</strong><small>${grade(activeScore)}</small></div></div><div class="intel-section-title">MODEL INSTRUMENTS</div><div class="intel-metrics">${metricHtml}</div><div class="intel-chips">${player.confidenceBadge?`<span>${player.confidenceBadge}</span>`:""}${player.rosterStatus?`<span>${player.rosterStatus}</span>`:""}${player.gameTotal?`<span>O/U ${round1(player.gameTotal)}</span>`:""}</div>${signal}`;
+    panel.innerHTML = `<div class="intel-hero">${playerVisualHtml(player,"intel-player-visual")}<div class="intel-title"><div class="eyebrow">${player.team} · ${player.position}${player.role?" · "+player.role:""}</div><h3>${player.name}</h3><p>vs ${player.opponent}${player.homeAway?" · "+player.homeAway:""}</p><div class="intel-score-inline"><span>${scoreLabel||"Outlook Score"}</span><strong style="color:${activeTier.color}">${round1(activeScore)}</strong><small>${activeTier.label}</small></div></div>${dnaScoreHtml(activeScore, scoreLabel)}</div><div class="intel-section-title">MODEL INSTRUMENTS</div><div class="intel-metrics">${metricHtml}</div><div class="intel-chips">${player.confidenceBadge?`<span>${player.confidenceBadge}</span>`:""}${player.rosterStatus?`<span>${player.rosterStatus}</span>`:""}${player.gameTotal?`<span>O/U ${round1(player.gameTotal)}</span>`:""}</div>${signal}`;
 }
 
 function rankingPropSignal(player, key) {

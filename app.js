@@ -337,12 +337,24 @@ function getTeamImpliedTotal(
 
 function grade(score) {
 
+    if (
+        score === null
+        ||
+        score === undefined
+        ||
+        score === ""
+    ) {
+
+        return "N/A";
+    }
+
+
     const s =
         Number(score);
 
 
     if (
-        Number.isNaN(s)
+        !Number.isFinite(s)
     ) {
 
         return "N/A";
@@ -373,6 +385,17 @@ function gclass(value = "") {
     const g =
         String(value)
         .toLowerCase();
+
+
+    if (
+        !g
+        ||
+        g === "n/a"
+        ||
+        g === "na"
+    ) {
+        return "g-neutral";
+    }
 
 
     if (g.includes("elite")) {
@@ -4084,7 +4107,15 @@ function renderRankings(key) {
     }).join("");
     const buttons=$$(".rank-row-v2");
     buttons.forEach(button=>{button.onclick=()=>{buttons.forEach(x=>x.classList.remove("selected"));button.classList.add("selected");const i=Number(button.dataset.rankIndex);const row=rows[i];if(row) renderPlayerIntel(row[0],definition.scoreLabel(row[0]),row[1]);};});
-    if(rows.length){buttons[0]?.classList.add("selected");renderPlayerIntel(rows[0][0],definition.scoreLabel(rows[0][0]),rows[0][1]);}
+    if(rows.length){
+        buttons[0]?.classList.add("selected");
+        renderPlayerIntel(rows[0][0],definition.scoreLabel(rows[0][0]),rows[0][1]);
+    } else {
+        const panel=$("#playerIntel");
+        if(panel){
+            panel.innerHTML='<div class="intel-empty"><div class="intel-orbit">◎</div><div class="eyebrow">PLAYER INTELLIGENCE</div><h3>No eligible players</h3><p>No players have a qualifying score for this ranking in the selected week.</p></div>';
+        }
+    }
 }
 
 // ============================================================

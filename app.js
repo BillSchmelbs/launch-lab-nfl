@@ -2251,54 +2251,54 @@ function renderQuick() {
         ];
 
 
-    const topPlayers =
-        [
-            ...headlinePlayers
-        ]
-
-        .sort(
-            (a, b) =>
-                Number(
-                    b.outlook
-                    ||
-                    0
-                )
-                -
-                Number(
-                    a.outlook
-                    ||
-                    0
-                )
-        );
-
-
-    const props =
+    const tdPlayers =
         headlinePlayers
 
+        .map(
+            player => [
+                player,
+                tdScore(player)
+            ]
+        )
+
         .filter(
-            player =>
-                player.bestPropScore
-                !==
-                null
+            ([, score]) =>
+                Number.isFinite(score)
                 &&
-                player.bestPropScore
-                !==
-                undefined
+                score > 0
         )
 
         .sort(
             (a, b) =>
-                Number(
-                    b.bestPropScore
-                    ||
-                    0
-                )
-                -
-                Number(
-                    a.bestPropScore
-                    ||
-                    0
-                )
+                b[1] - a[1]
+        );
+
+
+    const passingPlayers =
+        headlinePlayers
+
+        .filter(
+            player =>
+                player.position === "QB"
+        )
+
+        .map(
+            player => [
+                player,
+                passingScore(player)
+            ]
+        )
+
+        .filter(
+            ([, score]) =>
+                Number.isFinite(score)
+                &&
+                score > 0
+        )
+
+        .sort(
+            (a, b) =>
+                b[1] - a[1]
         );
 
 
@@ -2355,18 +2355,18 @@ function renderQuick() {
 
 
     if (
-        $("#topPlayer")
+        $("#topTD")
     ) {
 
-        $("#topPlayer").textContent =
-            topPlayers[0]
+        $("#topTD").textContent =
+            tdPlayers[0]
                 ?
                 (
-                    `${topPlayers[0].name} · `
+                    `${tdPlayers[0][0].name} · `
                     +
                     `${round1(
-                        topPlayers[0].outlook
-                    )}/100`
+                        tdPlayers[0][1]
+                    )}`
                 )
                 :
                 "—";
@@ -2374,33 +2374,21 @@ function renderQuick() {
 
 
     if (
-        $("#topProp")
+        $("#topPassing")
     ) {
 
-        if (
-            props[0]
-        ) {
-
-            $("#topProp").textContent =
+        $("#topPassing").textContent =
+            passingPlayers[0]
+                ?
                 (
-                    `${props[0].name} `
+                    `${passingPlayers[0][0].name} · `
                     +
-                    `${fmt(
-                        props[0].bestProp
-                    )} · `
-                    +
-                    `${fmt(
-                        props[0].bestPropScore
+                    `${round1(
+                        passingPlayers[0][1]
                     )}`
-                );
-        }
-
-
-        else {
-
-            $("#topProp").textContent =
-                "Sportsbook edge coming soon";
-        }
+                )
+                :
+                "—";
     }
 }
 // ============================================================

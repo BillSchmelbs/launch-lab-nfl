@@ -4193,34 +4193,30 @@ function dnaScoreHtml(score, scoreLabel) {
     const value = Math.max(0, Math.min(100, numericOrNull(score) ?? 0));
     const tier = dnaTier(value);
     const label = String(scoreLabel || "Outlook Score").replace(/\s+Score$/i, "").toUpperCase();
-    const turns = 8;
+    const turns = 10;
     const rungs = Array.from({ length: turns + 1 }, (_, index) => {
-        const y = 8 + index * (84 / turns);
+        const y = 7 + index * (86 / turns);
         const phase = index * Math.PI / 2;
-        const spread = 18 * Math.sin(phase);
+        const spread = 15 * Math.sin(phase);
         const x1 = 50 - spread;
         const x2 = 50 + spread;
         return `<line x1="${x1.toFixed(1)}" y1="${y.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y.toFixed(1)}"></line>`;
     }).join("");
 
+    const helix = `
+        <path d="M35 4 C65 12 65 21 35 29 C5 37 5 46 35 54 C65 62 65 71 35 79 C5 87 5 92 35 96"></path>
+        <path d="M65 4 C35 12 35 21 65 29 C95 37 95 46 65 54 C35 62 35 71 65 79 C95 87 95 92 65 96"></path>
+        <g>${rungs}</g>
+    `;
+
     return `
         <div class="dna-score-visual ${tier.glow ? "dna-elite-glow" : ""}" style="--dna-score:${value};--dna-color:${tier.color}">
             <div class="dna-meter" aria-label="${round1(value)} out of 100 ${label.toLowerCase()} rating">
-                <svg class="dna-svg dna-base" viewBox="0 0 100 100" aria-hidden="true">
-                    <path d="M30 4 C78 20 78 34 30 50 C-18 66 -18 80 30 96"></path>
-                    <path d="M70 4 C22 20 22 34 70 50 C118 66 118 80 70 96"></path>
-                    <g>${rungs}</g>
-                </svg>
+                <svg class="dna-svg dna-base" viewBox="0 0 100 100" aria-hidden="true">${helix}</svg>
                 <div class="dna-fill">
-                    <svg class="dna-svg dna-active" viewBox="0 0 100 100" aria-hidden="true">
-                        <path d="M30 4 C78 20 78 34 30 50 C-18 66 -18 80 30 96"></path>
-                        <path d="M70 4 C22 20 22 34 70 50 C118 66 118 80 70 96"></path>
-                        <g>${rungs}</g>
-                    </svg>
+                    <svg class="dna-svg dna-active" viewBox="0 0 100 100" aria-hidden="true">${helix}</svg>
                 </div>
-                <div class="dna-stop">
-                    <span>${round1(value)}</span>
-                </div>
+                <div class="dna-stop"><span>${round1(value)}</span></div>
             </div>
             <div class="dna-caption">
                 <strong>${label}</strong>
@@ -4229,7 +4225,6 @@ function dnaScoreHtml(score, scoreLabel) {
         </div>
     `;
 }
-
 
 function renderPlayerIntel(player, scoreLabel, scoreValue) {
     const panel = $("#playerIntel");

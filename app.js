@@ -4193,78 +4193,38 @@ function flaskScoreHtml(score, scoreLabel) {
     const value = Math.max(0, Math.min(100, numericOrNull(score) ?? 0));
     const tier = dnaTier(value);
     const label = String(scoreLabel || "Outlook Score").replace(/\s+Score$/i, "").toUpperCase();
-
-    // One shared instrument coordinate system:
-    // fillable chamber top = 8, bottom = 92, height = 84 SVG units.
-    const chamberTop = 8;
-    const chamberBottom = 92;
-    const chamberHeight = chamberBottom - chamberTop;
-    const scoreY = chamberBottom - (value / 100) * chamberHeight;
-    const fillHeight = chamberBottom - scoreY;
-    const uid = `reactor-${String(value).replace(".", "-")}-${Math.random().toString(36).slice(2, 8)}`;
-
-    const majorTicks = [100,90,80,70,60,50,40,30,20,10,0].map((tick) => {
-        const y = chamberBottom - (tick / 100) * chamberHeight;
-        return `<g class="reactor-major-tick"><line x1="92" y1="${y}" x2="99" y2="${y}"></line><text x="102" y="${y}" dominant-baseline="middle">${tick}</text></g>`;
-    }).join("");
-
-    const minorTicks = [95,85,75,65,55,45,35,25,15,5].map((tick) => {
-        const y = chamberBottom - (tick / 100) * chamberHeight;
-        return `<line class="reactor-minor-tick" x1="94" y1="${y}" x2="98" y2="${y}"></line>`;
-    }).join("");
+    const surfaceY = 100 - value;
+    const liquidHeight = value;
+    const clipId = `flaskClip-${String(value).replace(".","-")}-${Math.random().toString(36).slice(2,8)}`;
+    const ticks = [100,90,80,70,60,50,40,30,20,10,0].map((tick) =>
+        `<span class="flask-scale-tick" style="top:${100-tick}%"><i></i><b>${tick}</b></span>`
+    ).join("");
+    const overflow = tier.glow ? `<div class="flask-overflow" aria-hidden="true"><i></i><i></i><i></i></div>` : "";
 
     return `
-        <div class="flask-score-visual reactor-score-visual ${tier.glow ? "reactor-elite-glow" : ""}" style="--flask-color:${tier.color}">
-            <div class="flask-meter reactor-meter"
-                 role="img"
-                 aria-label="${label} Score: ${round1(value)} out of 100 — ${tier.label}">
-                <svg class="reactor-svg" viewBox="0 0 170 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <div class="flask-score-visual ${tier.glow ? "flask-elite-glow" : ""}" style="--flask-score:${value};--flask-color:${tier.color}">
+            ${overflow}
+            <div class="flask-meter" aria-label="${round1(value)} out of 100 ${label.toLowerCase()} rating">
+                <svg class="flask-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
                     <defs>
-                        <clipPath id="${uid}-clip">
-                            <rect x="26" y="${chamberTop}" width="48" height="${chamberHeight}" rx="5"></rect>
+                        <clipPath id="${clipId}">
+                            <path d="M39 2 H61 V18 L92 88 Q96 98 84 98 H16 Q4 98 8 88 L39 18 Z"></path>
                         </clipPath>
-                        <linearGradient id="${uid}-fuel" x1="0" y1="1" x2="0" y2="0">
-                            <stop offset="0%" stop-color="${tier.color}" stop-opacity=".88"></stop>
-                            <stop offset="62%" stop-color="${tier.color}" stop-opacity=".72"></stop>
-                            <stop offset="100%" stop-color="${tier.color}" stop-opacity=".94"></stop>
-                        </linearGradient>
-                        <linearGradient id="${uid}-glass" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#d9fbff" stop-opacity=".16"></stop>
-                            <stop offset="22%" stop-color="#d9fbff" stop-opacity=".03"></stop>
-                            <stop offset="72%" stop-color="#d9fbff" stop-opacity=".02"></stop>
-                            <stop offset="100%" stop-color="#d9fbff" stop-opacity=".12"></stop>
-                        </linearGradient>
                     </defs>
-
-                    <g class="reactor-hardware">
-                        <rect class="reactor-cap" x="20" y="2.5" width="60" height="7" rx="2"></rect>
-                        <line class="reactor-cap-detail" x1="28" y1="6" x2="72" y2="6"></line>
-                        <text class="reactor-brand" x="50" y="6.3" text-anchor="middle" dominant-baseline="middle">LAUNCH LAB</text>
-                        <rect class="reactor-shell" x="24" y="${chamberTop}" width="52" height="${chamberHeight}" rx="6"></rect>
-                        <g clip-path="url(#${uid}-clip)">
-                            <rect class="reactor-fuel" x="26" y="${scoreY}" width="48" height="${fillHeight}" fill="url(#${uid}-fuel)"></rect>
-                            <rect class="reactor-glass-reflection" x="26" y="${chamberTop}" width="48" height="${chamberHeight}" fill="url(#${uid}-glass)"></rect>
-                            <line class="reactor-fuel-surface" x1="27" y1="${scoreY}" x2="73" y2="${scoreY}"></line>
-                        </g>
-                        <rect class="reactor-bottom-housing" x="19" y="90.5" width="62" height="7" rx="2"></rect>
-                        <line class="reactor-bottom-detail" x1="27" y1="94" x2="73" y2="94"></line>
+                    <g clip-path="url(#${clipId})">
+                        <rect class="flask-liquid-svg" x="0" y="${surfaceY}" width="100" height="${liquidHeight}"></rect>
+                        <circle class="flask-bubble-svg b1" cx="29" cy="76" r="3"></circle>
+                        <circle class="flask-bubble-svg b2" cx="45" cy="66" r="3.2"></circle>
+                        <circle class="flask-bubble-svg b3" cx="60" cy="56" r="2.8"></circle>
+                        <circle class="flask-bubble-svg b4" cx="70" cy="46" r="2.6"></circle>
                     </g>
-
-                    <g class="reactor-scale">
-                        <line class="reactor-scale-rail" x1="92" y1="${chamberTop}" x2="92" y2="${chamberBottom}"></line>
-                        ${minorTicks}
-                        ${majorTicks}
-                    </g>
-
-                    <g class="reactor-live-indicator">
-                        <line class="reactor-indicator-line" x1="72" y1="${scoreY}" x2="130" y2="${scoreY}"></line>
-                        <circle class="reactor-indicator-node" cx="92" cy="${scoreY}" r="1.35"></circle>
-                        <rect class="reactor-readout" x="130" y="${scoreY - 5.2}" width="35" height="10.4" rx="2.4"></rect>
-                        <text class="reactor-readout-text" x="147.5" y="${scoreY}" text-anchor="middle" dominant-baseline="middle">${round1(value)}</text>
-                    </g>
+                    <path class="flask-vessel-path" d="M35 2 H65 M39 2 V18 L8 88 Q4 98 16 98 H84 Q96 98 92 88 L61 18 V2"></path>
+                    <line class="flask-surface-svg" x1="7" y1="${surfaceY}" x2="93" y2="${surfaceY}"></line>
                 </svg>
+                <div class="flask-scale" aria-hidden="true">${ticks}</div>
+                <div class="flask-stop" style="top:${surfaceY}%"><span>${round1(value)}</span></div>
             </div>
-            <div class="flask-caption reactor-caption"><strong>${label}</strong><span>${tier.label}</span></div>
+            <div class="flask-caption"><strong>${label}</strong><span>${tier.label}</span></div>
         </div>
     `;
 }

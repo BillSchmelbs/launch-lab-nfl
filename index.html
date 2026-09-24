@@ -44,6 +44,13 @@
             </button>
 
             <button
+                data-tab="usage"
+                class="navbtn"
+            >
+                Usage Lab
+            </button>
+
+            <button
                 data-tab="performance"
                 class="navbtn"
             >
@@ -294,6 +301,47 @@
                     </div>
                 </aside>
             </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             USAGE LAB
+        ===================================================== -->
+
+        <section
+            id="usage"
+            class="tabpage"
+        >
+
+            <div class="section-head usage-section-head">
+                <div>
+                    <span class="eyebrow">ROLE + VOLUME INTELLIGENCE</span>
+                    <h2>Usage Lab</h2>
+                    <p class="usage-intro">
+                        Completed-game usage only. Explore red-zone work, market share, and team target distribution without changing Launch Lab model scores.
+                    </p>
+                </div>
+
+                <div class="usage-snapshot" id="usageSnapshot">—</div>
+            </div>
+
+            <div class="usage-toolbar">
+                <div class="usage-tabs" id="usageReportTabs">
+                    <button type="button" class="active" data-usage-report="red_zone">Red Zone Report</button>
+                    <button type="button" data-usage-report="market_share">Market Share</button>
+                    <button type="button" data-usage-report="target_breakdown">Target Breakdown</button>
+                </div>
+
+                <div class="usage-window-tabs" id="usageWindowTabs">
+                    <button type="button" class="active" data-usage-window="season">Season</button>
+                    <button type="button" data-usage-window="last_3">Last 3</button>
+                    <button type="button" data-usage-window="last_game">Last Game</button>
+                </div>
+            </div>
+
+            <div id="usageControls"></div>
+            <div id="usageContent"></div>
 
         </section>
 

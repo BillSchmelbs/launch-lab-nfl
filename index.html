@@ -7,12 +7,12 @@
 
     <title>Launch Lab NFL</title>
 
-<link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css">
 
-<link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0"
-/>
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0"
+    >
 </head>
 
 <body>
@@ -101,7 +101,7 @@
 
 
                 <!-- ============================================
-                     NEW: HOW TO READ LAUNCH LAB BUTTON
+                     HOW TO READ LAUNCH LAB BUTTON
                 ============================================= -->
 
                 <button
@@ -287,19 +287,41 @@
 
 
             <div class="rankings-workspace">
+
                 <div
                     id="rankingsList"
                     class="rank-list"
                 ></div>
 
-                <aside id="playerIntel" class="player-intel" aria-live="polite">
+                <aside
+                    id="playerIntel"
+                    class="player-intel"
+                    aria-live="polite"
+                >
                     <div class="intel-empty">
-                        <div class="intel-orbit">🚀</div>
-                        <div class="eyebrow">PLAYER INTELLIGENCE</div>
-                        <h3>Select a player</h3>
-                        <p>Open a ranking to inspect Outlook, Matchup, Opportunity, Quality, Game Environment and the strongest prop signal.</p>
+
+                        <div class="intel-orbit">
+                            🚀
+                        </div>
+
+                        <div class="eyebrow">
+                            PLAYER INTELLIGENCE
+                        </div>
+
+                        <h3>
+                            Select a player
+                        </h3>
+
+                        <p>
+                            Open a ranking to inspect Outlook,
+                            Matchup, Opportunity, Quality,
+                            Game Environment and the strongest
+                            prop signal.
+                        </p>
+
                     </div>
                 </aside>
+
             </div>
 
         </section>
@@ -315,32 +337,125 @@
         >
 
             <div class="section-head usage-section-head">
+
                 <div>
-                    <span class="eyebrow">ROLE + VOLUME INTELLIGENCE</span>
-                    <h2>Usage Lab</h2>
+
+                    <span class="eyebrow">
+                        ROLE + VOLUME INTELLIGENCE
+                    </span>
+
+                    <h2>
+                        Usage Lab
+                    </h2>
+
                     <p class="usage-intro">
-                        Completed-game usage only. Explore red-zone work, market share, and team target distribution without changing Launch Lab model scores.
+                        Completed-game usage only. Explore red-zone
+                        work, market share, and team target distribution
+                        without changing Launch Lab model scores.
                     </p>
+
                 </div>
 
-                <div class="usage-snapshot" id="usageSnapshot">—</div>
+                <div
+                    class="usage-snapshot"
+                    id="usageSnapshot"
+                >
+                    —
+                </div>
+
             </div>
+
+
+            <!-- ================================================
+                 PRIMARY USAGE REPORTS
+            ================================================= -->
 
             <div class="usage-toolbar">
-                <div class="usage-tabs" id="usageReportTabs">
-                    <button type="button" class="active" data-usage-report="red_zone">Red Zone Report</button>
-                    <button type="button" data-usage-report="market_share">Market Share</button>
-                    <button type="button" data-usage-report="target_breakdown">Target Breakdown</button>
+
+                <div
+                    class="usage-tabs"
+                    id="usageReportTabs"
+                >
+
+                    <button
+                        type="button"
+                        class="active"
+                        data-usage-report="red_zone"
+                    >
+                        Red Zone Report
+                    </button>
+
+                    <button
+                        type="button"
+                        data-usage-report="market_share"
+                    >
+                        Market Share
+                    </button>
+
+                    <button
+                        type="button"
+                        data-usage-report="target_breakdown"
+                    >
+                        Target Breakdown
+                    </button>
+
                 </div>
 
-                <div class="usage-window-tabs" id="usageWindowTabs">
-                    <button type="button" class="active" data-usage-window="season">Season</button>
-                    <button type="button" data-usage-window="last_3">Last 3</button>
-                    <button type="button" data-usage-window="last_game">Last Game</button>
+
+                <!-- ============================================
+                     TIME WINDOWS
+                ============================================= -->
+
+                <div
+                    class="usage-window-tabs"
+                    id="usageWindowTabs"
+                >
+
+                    <button
+                        type="button"
+                        class="active"
+                        data-usage-window="season"
+                    >
+                        Season
+                    </button>
+
+                    <button
+                        type="button"
+                        data-usage-window="last_3"
+                    >
+                        Last 3
+                    </button>
+
+                    <button
+                        type="button"
+                        data-usage-window="last_game"
+                    >
+                        Last Game
+                    </button>
+
                 </div>
+
             </div>
 
+
+            <!-- ================================================
+                 DYNAMIC USAGE CONTROLS
+
+                 app.js populates this depending on report:
+                 - Red Zone: Passing/Rushing/Receiving + 20/10/5
+                 - Market Share: position/search controls
+                 - Target Breakdown: team/position controls
+            ================================================= -->
+
             <div id="usageControls"></div>
+
+
+            <!-- ================================================
+                 DYNAMIC USAGE CONTENT
+
+                 app.js renders the active Usage Lab report here.
+            ================================================= -->
+
             <div id="usageContent"></div>
 
         </section>
@@ -393,7 +508,7 @@
 
 
     <!-- ========================================================
-         NEW: HOW TO READ LAUNCH LAB MODAL
+         HOW TO READ LAUNCH LAB MODAL
     ========================================================= -->
 
     <div
@@ -608,28 +723,28 @@
                         </div>
 
 
-                       <div class="guide-definition">
+                        <div class="guide-definition">
 
-    <strong>
-        How Favorable Is This Matchup?
-    </strong>
+                            <strong>
+                                How Favorable Is This Matchup?
+                            </strong>
 
-    <p>
-        The QB, RB, WR, and TE boxes show how
-        favorable the matchup is for the offense
-        at each position.
+                            <p>
+                                The QB, RB, WR, and TE boxes show how
+                                favorable the matchup is for the offense
+                                at each position.
 
-        Higher scores mean a more favorable matchup
-        for that position.
+                                Higher scores mean a more favorable
+                                matchup for that position.
 
-        For example, a high RB rating indicates a
-        favorable environment for running backs.
+                                For example, a high RB rating indicates a
+                                favorable environment for running backs.
 
-        These numbers are ratings — not projected
-        fantasy points or yardage.
-    </p>
+                                These numbers are ratings — not projected
+                                fantasy points or yardage.
+                            </p>
 
-</div>
+                        </div>
 
                     </div>
 
@@ -810,7 +925,7 @@
                                 <tr>
 
                                     <td>
-                                        0–19.9
+                                        Below 20
                                     </td>
 
                                     <td>
@@ -820,7 +935,7 @@
                                     </td>
 
                                     <td>
-                                        Extremely unfavorable
+                                        Very unfavorable
                                     </td>
 
                                 </tr>
@@ -835,13 +950,13 @@
 
 
                 <!-- ============================================
-                     RANKINGS GUIDE
+                     PROP RATINGS
                 ============================================= -->
 
                 <section class="guide-section">
 
                     <h3>
-                        Rankings Page
+                        Prop Ratings
                     </h3>
 
 
@@ -851,12 +966,12 @@
                         <div class="guide-definition">
 
                             <strong>
-                                Top Player Outlooks
+                                Passing
                             </strong>
 
                             <p>
-                                Players with the highest overall
-                                weekly Launch Lab ratings.
+                                Rates the player’s passing environment
+                                for the week.
                             </p>
 
                         </div>
@@ -865,12 +980,12 @@
                         <div class="guide-definition">
 
                             <strong>
-                                Best Matchups
+                                Rushing
                             </strong>
 
                             <p>
-                                Players with the strongest matchup
-                                ratings against their opposing defense.
+                                Rates the player’s rushing environment
+                                for the week.
                             </p>
 
                         </div>
@@ -879,12 +994,12 @@
                         <div class="guide-definition">
 
                             <strong>
-                                Best Receiving Environments
+                                Receiving
                             </strong>
 
                             <p>
-                                Players in the strongest environments
-                                for receiving production.
+                                Rates the player’s receiving environment
+                                for the week.
                             </p>
 
                         </div>
@@ -893,12 +1008,45 @@
                         <div class="guide-definition">
 
                             <strong>
-                                Best Rushing Environments
+                                Touchdown
                             </strong>
 
                             <p>
-                                Players in the strongest environments
-                                for rushing production.
+                                Rates the player’s environment for
+                                touchdown opportunities.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ============================================
+                     USAGE LAB
+                ============================================= -->
+
+                <section class="guide-section">
+
+                    <h3>
+                        Usage Lab
+                    </h3>
+
+
+                    <div class="guide-definition-list">
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Target Share
+                            </strong>
+
+                            <p>
+                                The percentage of a team's receiving
+                                targets earned by the player during
+                                the selected sample.
                             </p>
 
                         </div>
@@ -907,7 +1055,114 @@
                         <div class="guide-definition">
 
                             <strong>
-                                Best TD Environments
+                                Opportunity Share
+                            </strong>
+
+                            <p>
+                                The percentage of the team's combined
+                                rushing attempts and receiving targets
+                                accounted for by the player.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Red Zone Opportunity Share
+                            </strong>
+
+                            <p>
+                                The percentage of the team's combined
+                                rushing attempts and receiving targets
+                                inside the opponent's 20-yard line
+                                accounted for by the player.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Red Zone Target Share
+                            </strong>
+
+                            <p>
+                                The percentage of the team's targets
+                                inside the opponent's 20-yard line
+                                earned by the player.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                10-Zone / 5-Zone
+                            </strong>
+
+                            <p>
+                                Opportunities occurring inside the
+                                opponent's 10-yard line or 5-yard line.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Usage Windows
+                            </strong>
+
+                            <p>
+                                Season, Last 3 and Last Game use only
+                                games completed before the selected
+                                weekly snapshot.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ============================================
+                     QUICK LISTS
+                ============================================= -->
+
+                <section class="guide-section">
+
+                    <h3>
+                        Quick Lists
+                    </h3>
+
+
+                    <div class="guide-definition-list">
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Best Games
+                            </strong>
+
+                            <p>
+                                The strongest overall game environments
+                                on the slate.
+                            </p>
+
+                        </div>
+
+
+                        <div class="guide-definition">
+
+                            <strong>
+                                Top Touchdown Environments
                             </strong>
 
                             <p>
@@ -964,10 +1219,7 @@
 
 
     <!-- ========================================================
-         NEW: SMALL INFO POPOVER
-         
-         app.js will reuse this one element when users click
-         the small information icons beside rating labels.
+         SMALL INFO POPOVER
     ========================================================= -->
 
     <div

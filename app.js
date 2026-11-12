@@ -2151,6 +2151,7 @@ async function loadWeek(file) {
 
     updateDataStatus();
 
+    if ($("#gameSort")) $("#gameSort").value = "kickoff";
 
     renderQuick();
 
@@ -2232,6 +2233,62 @@ function updateDataStatus() {
 }
 
 
+
+/* Weekly Board presentation helpers. These never alter model scores. */
+function boardKickoffValue(game) {
+    const date = String(game.gameDate || "").trim();
+    const time = String(game.gameTime || "").trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return Number.POSITIVE_INFINITY;
+    const m = time.match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return Date.parse(date + "T23:59:00Z");
+    return Date.parse(date + "T" + m[1].padStart(2,"0") + ":" + m[2] + ":00Z");
+}
+function boardEnvironmentValue(game) {
+    return numericOrNull(game.environmentScore);
+}
+function boardSortedGames() {
+    const sort = $("#gameSort")?.value || "kickoff";
+    return [...GAMES].sort((a,b) => {
+        if (sort === "environment-high" || sort === "environment-low") {
+            const av = boardEnvironmentValue(a), bv = boardEnvironmentValue(b);
+            if (av === null && bv !== null) return 1;
+            if (bv === null && av !== null) return -1;
+            if (av !== null && bv !== null && av !== bv)
+                return sort === "environment-high" ? bv-av : av-bv;
+        }
+        return boardKickoffValue(a) - boardKickoffValue(b)
+            || String(a.matchupLabel || "").localeCompare(String(b.matchupLabel || ""));
+    });
+}
+function boardKickoffLabel(game) {
+    const date = String(game.gameDate || "").trim();
+    const time = String(game.gameTime || "").trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return [date,time].filter(Boolean).join(" · ") || "Kickoff TBD";
+    const d = new Date(date + "T12:00:00Z");
+    const day = d.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric",timeZone:"UTC"});
+    const m = time.match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return day + " · Time TBD";
+    // Source NFL schedule game_time uses Eastern time; Central is one hour earlier.
+    const minutes = ((Number(m[1])*60+Number(m[2])-60)+1440)%1440;
+    const hour = Math.floor(minutes/60), displayHour = hour%12 || 12;
+    return day + " · " + displayHour + ":" + String(minutes%60).padStart(2,"0") + (hour>=12?" PM":" AM") + " CT";
+}
+function boardTopPlayers(game, team) {
+    return (game.players || []).map(p => typeof p === "object" ? (byId(p.id) || p) : byId(p))
+        .filter(p => p && p.team === team && p.headlineEligible && numericOrNull(p.outlook) !== null)
+        .sort((a,b) => Number(b.outlook)-Number(a.outlook)).slice(0,2);
+}
+function boardFeaturedPlayers(game, teams) {
+    const escapeText = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const rows = teams.map(team => {
+        const players = boardTopPlayers(game,team);
+        return '<div class="board-feature-team"><div class="board-feature-team-name">'+escapeText(team)+'</div>'+
+            (players.length ? players.map(p => '<div class="board-feature-player"><span>'+escapeText(p.name)+' <small>'+escapeText(p.position)+'</small></span><strong>'+round1(p.outlook)+'</strong></div>').join("")
+            : '<div class="board-feature-empty">No eligible player outlook available</div>')+'</div>';
+    }).join("");
+    return '<div class="board-featured"><div class="board-feature-heading">Top player outlooks <span>Outlook V2 / 100</span></div><div class="board-feature-grid">'+rows+'</div></div>';
+}
+
 // ============================================================
 // QUICK SUMMARY
 // ============================================================
@@ -2302,57 +2359,13 @@ function renderQuick() {
         );
 
 
-    if (
-        $("#bestGame")
-    ) {
-
-        let game =
-            games[0];
-
-
-        if (
-            DATA_MODE
-            ===
-            "LEGACY_2025"
-        ) {
-
-            games.sort(
-                (a, b) =>
-                    (
-                        Number(
-                            b.total
-                            ||
-                            0
-                        )
-                        -
-                        Number(
-                            a.total
-                            ||
-                            0
-                        )
-                    )
-            );
-
-
-            game =
-                games[0];
-        }
-
-
-        $("#bestGame").textContent =
-            game
-                ?
-                (
-                    `${game.matchupLabel} · `
-                    +
-                    `${fmt(
-                        game.environmentGrade
-                    )}`
-                )
-                :
-                "—";
+    if ($("#bestGame")) {
+        const topGame = [...GAMES].filter(g => boardEnvironmentValue(g) !== null)
+            .sort((a,b) => boardEnvironmentValue(b)-boardEnvironmentValue(a))[0];
+        $("#bestGame").textContent = topGame
+            ? topGame.matchupLabel + " · " + round1(topGame.environmentScore) + "/100 · " + (topGame.environmentGrade || grade(topGame.environmentScore))
+            : "No game environment available";
     }
-
 
     if (
         $("#topTD")
@@ -2426,7 +2439,7 @@ function renderGames() {
         "";
 
 
-    GAMES.forEach(
+    boardSortedGames().forEach(
         game => {
 
             let gamePlayers =
@@ -2655,6 +2668,11 @@ const teams =
                 .join("");
 
 
+            const featuredPlayersHtml = boardFeaturedPlayers(game, teams);
+            const kickoffLabel = boardKickoffLabel(game);
+            const barValue = environmentScore === null ? 0 : Math.max(0,Math.min(100,environmentScore));
+            const barTone = environmentScore === null ? "neutral" : environmentScore >= 70 ? "positive" : environmentScore < 40 ? "negative" : "mid";
+
             html += `
 
             <article class="game-card">
@@ -2682,33 +2700,7 @@ const teams =
 
                             <div class="game-meta">
 
-                                ${
-                                    game.gameDate
-                                        ?
-                                        `
-                                        <span class="pill">
-                                            ${fmt(
-                                                game.gameDate
-                                            )}
-                                        </span>
-                                        `
-                                        :
-                                        ""
-                                }
-
-                                ${
-                                    game.gameTime
-                                        ?
-                                        `
-                                        <span class="pill">
-                                            ${fmt(
-                                                game.gameTime
-                                            )}
-                                        </span>
-                                        `
-                                        :
-                                        ""
-                                }
+                                <span class="pill board-kickoff">${kickoffLabel}</span>
 
                                 <span class="pill">
                                     Total ${
@@ -2727,59 +2719,11 @@ const teams =
 
                         <div>
 
-                            <div
-                                class="
-                                    score
-                                    ${
-                                        gclass(
-                                            environmentGrade
-                                        )
-                                    }
-                                "
-                            >
-
-                                ${
-                               DATA_MODE
-===
-"PUBLIC_V2"
-    ?
-    (
-        environmentScore !== null
-            ?
-            `
-            <span class="score-number">
-                ${round1(
-                    environmentScore
-                )}/100
-            </span>
-
-            <span class="score-grade-label">
-                ${environmentGrade}
-            </span>
-            `
-            :
-            "—"
-    )
-    :
-    fmt(
-        environmentGrade
-    )
-                                }
-
+                            <div class="board-env-score ${gclass(environmentGrade)}">
+                                <span class="board-env-number">${environmentScore === null ? "—" : round1(environmentScore) + "/100"}</span>
+                                <span class="board-env-grade">${environmentGrade}</span>
                             </div>
-
-
-                            <div class="player-sub info-label">
-
-                                Game Environment
-
-                                ${infoButtonHtml(
-                                    "gameEnvironment",
-                                    "Game Environment"
-                                )}
-
-                            </div>
-
+                            <div class="player-sub info-label">Game Environment ${infoButtonHtml("gameEnvironment","Game Environment")}</div>
                         </div>
 
                     </div>
@@ -2787,7 +2731,13 @@ const teams =
                 </div>
 
 
+                <div class="board-env-meter ${barTone}" role="img" aria-label="Game Environment: ${environmentScore === null ? 'not available' : round1(environmentScore) + ' out of 100'}">
+                    <span style="width:${barValue}%"></span>
+                </div>
+
                 <div class="expand">
+
+                    ${featuredPlayersHtml}
 
                     <div class="teams">
 
@@ -2907,6 +2857,8 @@ const teams =
         }
     );
 
+
+    if ($("#gameSort")) $("#gameSort").onchange = renderGames;
 
     setupInfoButtons();
 }

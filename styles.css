@@ -1615,3 +1615,43 @@ select:focus,input:focus{outline:none!important;border-color:var(--ll-blue)!impo
 .rank-mobile-intel .flask-score-visual{width:135px;min-height:256px}.rank-mobile-intel .flask-meter{width:128px;height:222px}.rank-mobile-intel .flask-svg{width:84px}
 .rank-mobile-intel .flask-scale{left:91px;width:36px}.rank-mobile-intel .flask-scale-tick b{font-size:.49rem}.rank-mobile-intel .flask-stop{left:75px;width:16px}.rank-mobile-intel .flask-stop span{left:17px;min-width:36px;font-size:.52rem}
 .rank-mobile-intel .intel-score-inline strong{font-size:1.48rem}.rank-mobile-intel .flask-overflow{right:42px;transform:scale(.8)}}
+
+/* Responsive weekly board enhancements: desktop + mobile */
+.board-sort-label{font-size:12px;color:var(--muted);white-space:nowrap}
+#gameSort{min-width:185px}
+.board-env-score{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.board-env-number{font-size:20px;font-weight:850;white-space:nowrap;font-variant-numeric:tabular-nums}
+.board-env-grade{font-size:10px;font-weight:800;letter-spacing:.08em}
+.board-env-meter{height:7px;background:#23364a;border-radius:99px;overflow:hidden;margin:0 18px 13px}
+.board-env-meter>span{display:block;height:100%;border-radius:99px;background:#fbbf24}
+.board-env-meter.positive>span{background:#71f5c6}
+.board-env-meter.negative>span{background:#fb7185}
+.board-env-meter.neutral>span{background:#64748b}
+.board-kickoff{font-weight:700}
+.board-featured{padding:14px 16px 18px;border-bottom:1px solid var(--line)}
+.board-feature-heading{font-size:13px;font-weight:800;margin-bottom:12px;display:flex;justify-content:space-between;gap:12px}
+.board-feature-heading span{font-size:11px;color:var(--muted);font-weight:500}
+.board-feature-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.board-feature-team{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.board-feature-team-name{font-weight:800;font-size:12px;color:var(--mint);margin-bottom:8px}
+.board-feature-player{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:13px;align-items:center}
+.board-feature-player+ .board-feature-player{border-top:1px solid var(--line)}
+.board-feature-player span{min-width:0;overflow-wrap:anywhere}
+.board-feature-player small{font-size:10px;color:var(--muted)}
+.board-feature-player strong{font-variant-numeric:tabular-nums;color:var(--mint)}
+.board-feature-empty{font-size:12px;color:var(--muted)}
+@media(max-width:760px){
+ .filters{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+ .filters input{min-width:0;flex:1 1 180px}
+ #gameSort{flex:1 1 180px;min-width:0}
+ .board-sort-label{width:100%}
+ .board-env-number{font-size:17px}
+ .board-env-meter{margin:0 12px 12px}
+ .board-feature-grid{grid-template-columns:1fr}
+ .board-feature-heading{flex-wrap:wrap}
+ .game-meta{display:flex;flex-wrap:wrap}
+}
+@media(max-width:420px){
+ .board-env-number{font-size:15px}
+ .board-featured{padding:12px}
+}
